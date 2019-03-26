@@ -12,7 +12,7 @@ All contribution, bug reports and ideas are welcomed by the Eclipse Development 
 Refer to the [contributing guide](https://github.com/athaun/Eclipse-OS/blob/master/CONTRIBUTING.md) for more information.
 
 ## License
-Eclipse OS is made availible under the [MIT License](https://github.com/athaun/Eclipse-OS/blob/master/LICENSE).
+Eclipse OS is made available under the [MIT License](https://github.com/athaun/Eclipse-OS/blob/master/LICENSE).
 
 ## Links
 * [Website](http://bit.ly/2JGoP4f)
