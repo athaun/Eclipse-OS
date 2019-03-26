@@ -1,3 +1,4 @@
+
 /**
  * 
  * Eclipse Operating System Alpha
@@ -8,107 +9,120 @@
  * 
  **/
 
-// Setup (this initialized and or declares system variables)
-smooth();// used in some browsers to force them to render smoothly (without this, it is very pixelated)
+// Used for some browsers to force them to render smoothly, without this, it is very pixelated
+smooth();
 
+/* 
+Colors object to be used whenever using background, fill or stroke. This is to make it easier to change the colors without hacing to go through the code and change every instance of the particular color.
+
+Usage:
+
+fill(colors.red);
+
+*/
 var colors = {
     red:        color(255, 0, 0),
     green:      color(0, 143, 0),
     blue:       color(0, 0, 255),
-    white:      color(255, 0, 0),
-    black:      color(255, 0, 0),
-    grey:       color(255, 0, 0),
-    theme:      color(189, 0, 0), // Eclipse OS default dark red theme
+    white:      color(255),
+    black:      color(0),
+    grey:       color(170),
+    theme:      color(189, 0, 0),   // Eclipse OS default dark red theme
     darkgrey:   color(48, 48, 48),
     lightgrey:  color(196, 196, 196),
-}; // these are system colors that must be used in apps for continuity across system, access like fill(colors.red);
+};
+
 var system = {
-  user: "Eclipse Basic User",
-  password: "",
-  time: {
-      hour: hour(),
-      minute: minute(),
-      second: second(),
-      timeStamp: "", // AM or PM
-      currentTime: ""
-  },
-  scene: "logo",
-  back_ground: 1,
-  version: "V. 2019",
-  screenBrightness: 0, // full brightness = 0; absolute dimness (black) = 255
-  loggedIn: true,
-  events: [] // push events that should be noted like user opened app, or user changed password
-};
-var vocal = {
-    greeting: "Hello " + system.user + ", my name is Vocal, your personal assistant. How may I be of assistance?",
-    response: "..."
-};
-
-var setClock = function() {
-    
-    if (system.time.minute < 10) {
-        if (system.time.hour > 12) {
-            system.time.timeStamp = "PM";
-            system.time.currentTime = system.time.hour - 12 + ":0" + system.time.minute + " " + system.time.timeStamp;
-        } else {
-            system.time.timeStamp = "AM";
-            system.time.currentTime = system.time.hour + ":0" + system.time.minute + " " + system.time.timeStamp;
+    // Only one user can be created as of now
+    user: "Guest",
+    password: "",
+    // Time object to be used whenever displaying or printing time
+    time: {
+        // Set to null so it is easier to find out if they have not been updated
+        hour: null,
+        minute: null,
+        second: null,
+        // AM or PM
+        timeStamp: null,
+        formattedTime: null,
+        update: function() {
+            this.hour = hour();
+            this.minute = minute();
+            this.second = second();
+            if (this.minute < 10) {
+                if (this.hour > 12) {
+                    this.timeStamp = "PM";
+                    this.formattedTime = this.hour - 12 + ":0" + this.minute + " " + this.timeStamp;
+                } else {
+                    this.timeStamp = "AM";
+                    this.formattedTime = this.hour + ":0" + this.minute + " " + this.timeStamp;
+                }
+            } else {
+                if (this.hour > 12) {
+                    this.timeStamp = "PM";
+                    this.formattedTime = this.hour - 12 + ":" + this.minute + " " + this.timeStamp;
+                } else {
+                    this.timeStamp = "AM";
+                    this.formattedTime = this.hour + ":" + this.minute + " " + this.timeStamp;
+                }
+            }
         }
-    } else {
-        if (system.time.hour > 12) {
-            system.time.timeStamp = "PM";
-            system.time.currentTime = system.time.hour - 12 + ":" + system.time.minute + " " + system.time.timeStamp;
-        } else {
-            system.time.timeStamp = "AM";
-            system.time.currentTime = system.time.hour + ":" + system.time.minute + " " + system.time.timeStamp;
-        }
-    }
-    
+    },
+    scene: "logo",
+    version: "Alpha 0.2",
+    // Works just like colors. The higher the number, the higher the brightness.
+    screenBrightness: 0,
+    loggedIn: true,
+    // Stores system events such as scene changes, applications ran, etc.
+    events: []
 };
 
-var clicked = false;
+// Still deciding on wether to use Mouse object or multiple variables like pressesd, released, etc.
 
-mousePressed = function() {
-    clicked = true;// sets clicked to true only while the mouse si beging clicked
-};
-mouseReleased = function() {
-    clicked = false;// as soon as user releases the mouse button, set clicked to false
+// var clicked = false;
+// mousePressed = function() {
+//     clicked = true;
+// };
+// mouseReleased = function() {
+//     clicked = false;
+// };
+
+/*
+Icon object to be used whenever displaying icons, wether that be using KA's images or using shapes.
+
+Usage:
+
+var img = new Image("Image Name", function() {
+    // Draw code 
+});
+draw = function() {
+    img.draw();
 };
 
-var Icon = function (X, Y, Width, Height, name) {
-    // icon constructor
-    this.x = X;
-    this.y = Y;
-    this.width = Width;
-    this.height = Height;
-    
+*/
+var Icon = function (name, sprite) {
+    this.name = name;
+    this.sprite = sprite;
     Icon.prototype.draw = function() {
-        
-        fill(colors.red);
-        noStroke();
-        ellipse(this.x, this.y, this.width, this.height);
-        
+        try {
+            this.sprite();
+        } catch(error) {
+            // Prints out error if `this.sprite` is not a function
+            println(error);
+        }
     };
 };
-
-var IconOne = new Icon(100, 100, 100, 100);
+var IconOne = new Icon("One", function() {
+    noStroke();
+    fill(colors.theme);
+    ellipse(200, 200, 100, 100);
+});
 
 var draw = function() {
+    background(colors.white);
     IconOne.draw();
-    setClock();//refreshes the clock every time draw is called
-    println(system.time.currentTime);
+    // Update the time in the `system` object every frame
+    system.time.update();
+    // For debugging purposes
+    println(system.time.formattedTime);
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
