@@ -1,20 +1,18 @@
-# Eclipse OS
-Eclipse OS is a conceptual operating system designed and created on Khan Academy.
 
 ![Eclipse OS Logo](https://www.khanacademy.org/computer-programming/eclipse-os-team/6701799319830528/5649050225344512.png)
+# Eclipse OS [![MIT License](https://img.shields.io/github/license/athaun/EOS.svg)](https://github.com/athaun/Eclipse-OS/blob/master/LICENSE) [![Last Commit](https://img.shields.io/github/last-commit/athaun/EOS.svg)](https://github.com/athaun/Eclipse-OS/commits/master) [![Discord Server](https://img.shields.io/discord/501497748294467585.svg)](https://discord.gg/JD7skcm)
 
-<br>
+Eclipse OS is a conceptual operating system designed and created on Khan Academy.
+
+## About
 Our goal is to create a lightweight, fast simulation OS on Khan Academy using Processing.js with clean source code! Our largest feature is Vocal, an assistant that will help you throughout your day. She can open apps, have a chat, or set a calendar date! 
-<hr>
 
-[Our Website](http://bit.ly/2JGoP4f)
+## License
+Eclipse OS is made availible under the [MIT License](https://github.com/athaun/Eclipse-OS/blob/master/LICENSE).
 
-[Eclipse OS discord](https://discord.gg/etFN8K4)
-
-[subscribe to Eclipse OS](bit.ly/subscribetoEOS)
-
-[Vocal w/ voice synthesis and recognition (beta)](https://vocal.netlify.com/)
-
-[Eclipse OS code formatting and guidelines](https://github.com/athaun/EOS/wiki/Code-Guidelines)
-
+## Links
+* [Website](http://bit.ly/2JGoP4f)
+* [Eclipse discord](https://discord.gg/etFN8K4)
+* [Eclipse OS subscription page](bit.ly/subscribetoEOS)
+* [Vocal w/ voice synthesis and recognition](https://vocal.netlify.com/)
 
