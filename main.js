@@ -1,24 +1,23 @@
 
 /**
- * 
+ *
  * Eclipse Operating System Alpha
- * 
+ * version 10.0#
+ *
  * Copyright 2019
  * Eclipse Development Team
  * All right reserved
- * 
+ * Code made available under the MIT license
+ *
  **/
 
 // Used for some browsers to force them to render smoothly, without this, it is very pixelated
 smooth();
 
-/* 
+/*
 Colors object to be used whenever using background, fill or stroke. This is to make it easier to change the colors without hacing to go through the code and change every instance of the particular color.
-
 Usage:
-
 fill(colors.red);
-
 */
 var colors = {
     red:        color(255, 0, 0),
@@ -77,30 +76,25 @@ var system = {
     events: []
 };
 
-// Still deciding on wether to use Mouse object or multiple variables like pressesd, released, etc.
-
-// var clicked = false;
-// mousePressed = function() {
-//     clicked = true;
-// };
-// mouseReleased = function() {
-//     clicked = false;
-// };
-
-/*
-Icon object to be used whenever displaying icons, wether that be using KA's images or using shapes.
-
-Usage:
-
-var img = new Image("Image Name", function() {
-    // Draw code 
-});
-draw = function() {
-    img.draw();
+var clicked = false;
+mousePressed = function() {
+    clicked = true;
+};
+mouseReleased = function() {
+    clicked = false;
 };
 
-*/
 var Icon = function (name, sprite) {
+    /*
+    Icon object to be used whenever displaying icons, wether that be using KA's images or using shapes.
+    Usage:
+      var img = new Image("Image Name", function() {
+          // Draw code
+      });
+      draw = function() {
+          img.draw();
+      };
+    */
     this.name = name;
     this.sprite = sprite;
     Icon.prototype.draw = function() {
@@ -108,10 +102,12 @@ var Icon = function (name, sprite) {
             this.sprite();
         } catch(error) {
             // Prints out error if `this.sprite` is not a function
+            println("Error displaying icon " + name + "\n");
             println(error);
         }
     };
 };
+
 var IconOne = new Icon("One", function() {
     noStroke();
     fill(colors.theme);
