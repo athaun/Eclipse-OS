@@ -1,4 +1,3 @@
-
 /**
  *
  * Eclipse Operating System Alpha
@@ -17,7 +16,9 @@ smooth();
 /*
 Colors object to be used whenever using background, fill or stroke. This is to make it easier to change the colors without hacing to go through the code and change every instance of the particular color.
 Usage:
-fill(colors.red);
+
+    fill(colors.red);
+
 */
 var colors = {
     red:        color(255, 0, 0),
@@ -88,16 +89,18 @@ var Icon = function (name, sprite) {
     /*
     Icon object to be used whenever displaying icons, wether that be using KA's images or using shapes.
     Usage:
-      var img = new Image("Image Name", function() {
-          // Draw code
-      });
-      draw = function() {
-          img.draw();
-      };
+    
+        var img = new Image("Image Name", function() {
+            // Draw code
+        });
+        draw = function() {
+            img.draw();
+        };
+        
     */
     this.name = name;
     this.sprite = sprite;
-    Icon.prototype.draw = function() {
+    this.draw = function() {
         try {
             this.sprite();
         } catch(error) {
@@ -107,18 +110,50 @@ var Icon = function (name, sprite) {
         }
     };
 };
+var App = function(name, init, draw) {
+    /*
+    App object to be used whenever making an application, widget or scene.
+    Usage:
+    
+        var app = new App("App Name", function() {
+            // Init code
+        }, function() {
+            // Draw code
+        });
+        app.init();
+        draw = function() {
+            app.draw();
+        };
+        
+    */
+    this.name = name;
+    this.init = init;
+    this.draw = draw;
+};
 
-var IconOne = new Icon("One", function() {
+var iconOne = new Icon("One", function() {
     noStroke();
     fill(colors.theme);
     ellipse(200, 200, 100, 100);
 });
+var appOne = new App("One", function() {
+    this.x = 1;
+}, function() {
+    fill(colors.black);
+    text(system.time.formattedTime, this.x, 20);
+    if(frameCount % 50 === 0) {
+        this.x += 20;
+        if(this.x > width) {
+            this.x = 0;
+        }
+    }
+});
+appOne.init();
 
 var draw = function() {
     background(colors.white);
-    IconOne.draw();
+    iconOne.draw();
+    appOne.draw();
     // Update the time in the `system` object every frame
     system.time.update();
-    // For debugging purposes
-    println(system.time.formattedTime);
 };
