@@ -9,5 +9,6 @@ This is mainly for developers of the Eclipse Development Team but anyone can con
 3. Paste your code to the [main.js](https://github.com/athaun/Eclipse-OS/edit/master/main.js) file.
 3. Provide an appropriate description for the changes you have made and create your pull request.
 4. Update any version number increments throughout the files in the repository.
+> Note that if you are working on a major change or feature you should create a new branch.
 ## Standards
 All code must follow the [Code Guidelines](https://github.com/athaun/Eclipse-OS/wiki/Code-Guidelines). Do not add features that have not been approved by the lead developers of the Eclipse Development Team as they will most likely not be implemented.
