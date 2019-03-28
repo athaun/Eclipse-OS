@@ -90,44 +90,55 @@ var Icon = function (name, sprite) {
     Icon object to be used whenever displaying icons, wether that be using KA's images or using shapes.
     Usage:
     
-        var img = new Image("Image Name", function() {
+        var icon = new Icon("Icon Name", function() {
+            // Load code
+        }, function() {
             // Draw code
         });
+        icon.load();
         draw = function() {
-            img.draw();
+            icon.draw();
         };
         
     */
     this.name = name;
     this.sprite = sprite;
-    this.draw = function() {
+    this.load = function() {
+        (background)(0, 0);
         try {
             this.sprite();
         } catch(error) {
             // Prints out error if `this.sprite` is not a function
-            println("Error displaying icon " + name + "\n");
+            println(error);
+        }
+        this.icon = get(0, 0, width, height);
+    };
+    this.draw = function(x, y) {
+        try {
+            image(this.icon, x, y);
+        } catch(error) {
             println(error);
         }
     };
 };
-var App = function(name, init, draw) {
+var App = function(name, load, draw) {
     /*
     App object to be used whenever making an application, widget or scene.
     Usage:
     
         var app = new App("App Name", function() {
-            // Init code
+            // Load code
         }, function() {
             // Draw code
         });
-        app.init();
+        app.load();
         draw = function() {
             app.draw();
         };
         
     */
     this.name = name;
-    this.init = init;
+    this.load = load;
     this.draw = draw;
 };
 
@@ -148,10 +159,12 @@ var appOne = new App("One", function() {
         }
     }
 });
-appOne.init();
+iconOne.load();
+appOne.load();
 
 var draw = function() {
     background(colors.white);
+    // Draw icon and app
     iconOne.draw();
     appOne.draw();
     // Update the time in the `system` object every frame
