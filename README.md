@@ -9,7 +9,7 @@ Our goal is to create a lightweight, fast simulation OS on Khan Academy using Pr
 
 ## Contributing
 All contribution, bug reports and ideas are welcomed by the Eclipse Development team.
-Refer to the [contributing guide](https://github.com/athaun/Eclipse-OS/blob/master/CONTRIBUTING.md) for more information.
+Refer to the [contributing guide](https://github.com/athaun/Eclipse-OS/blob/master/.github/CONTRIBUTING.md) for more information.
 
 ## License
 Eclipse OS is made available under the [MIT License](https://github.com/athaun/Eclipse-OS/blob/master/LICENSE).
