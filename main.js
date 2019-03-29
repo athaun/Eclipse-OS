@@ -267,10 +267,12 @@ Element.prototype = {
         this.disabled = true;
         this.color = this.fill;
         this.fill = config.fill.disabled;
+        system.events.push("Element " + this.label + " disabled.");
     },
     enable: function() {
         this.disabled = false;
         this.fill = this.color;
+        system.events.push("Element " + this.label + " enabled.");
     },
     drawShadow: function(args) {
         if(this.disabled) {
@@ -348,6 +350,7 @@ Element.prototype = {
             try {
                 playSound(config.audioFeedback);
             } catch(error) {}
+            system.events.push("Element " + this.label + " pressed.");
         }
         this.selected = false;
     },
@@ -1246,16 +1249,20 @@ var Icon = function (name, sprite) {
         } catch(error) {
             // Prints out error if `this.sprite` is not a function
             println(error);
+            return;
         }
         this.icon = get(0, 0, width, height);
+        system.events.push("Icon " + this.name + " loaded.");
     };
     this.draw = function(x, y) {
         try {
             image(this.icon, x, y);
         } catch(error) {
             println(error);
+            return;
         }
     };
+    system.events.push("Icon " + this.name + " created.");
 };
 var App = function(name, load, draw) {
     /*
@@ -1276,6 +1283,7 @@ var App = function(name, load, draw) {
     this.name = name;
     this.load = load;
     this.draw = draw;
+    system.events.push("App " + this.name + " created.");
 };
 
 var iconOne = new Icon("One", function() {
