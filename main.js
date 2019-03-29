@@ -239,7 +239,7 @@ var symbols = {
     }
 };
 //}
-//Element {
+// GUI Element functions {
 var Element = function(params) {
     this.x = params.x;
     this.y = params.y;
@@ -267,12 +267,10 @@ Element.prototype = {
         this.disabled = true;
         this.color = this.fill;
         this.fill = config.fill.disabled;
-        system.events.push("Element " + this.label + " disabled.");
     },
     enable: function() {
         this.disabled = false;
         this.fill = this.color;
-        system.events.push("Element " + this.label + " enabled.");
     },
     drawShadow: function(args) {
         if(this.disabled) {
@@ -350,7 +348,6 @@ Element.prototype = {
             try {
                 playSound(config.audioFeedback);
             } catch(error) {}
-            system.events.push("Element " + this.label + " pressed.");
         }
         this.selected = false;
     },
@@ -598,7 +595,6 @@ Textbox.prototype = {
     onkeypress: function() {
         var SPACE = 32;
         if(this.focused) {
-            system.events.push("Textbox " + this.label + " pressed key: " + Key.code + ".");
             switch(Key.code) {
                 case ENTER:
                     if(!this.live) {
@@ -667,7 +663,6 @@ Textbox.prototype = {
             if(!complete) {
                 this.caret = this.text.length;   
             }
-            system.events.push("Element " + this.label + " pressed.");
         }
         this.selected = false;
     }
@@ -847,7 +842,6 @@ Slider.prototype = {
             try {
                 playSound(config.audioFeedback);
             } catch(error) {}
-            system.events.push("Element " + this.label + " pressed.");
         }
         this.selected = false;
         this.textbox.onmouserelease();
@@ -861,7 +855,6 @@ Slider.prototype = {
     },
     onkeypress: function() {
         if(this.focused) {
-            system.events.push("Slider " + this.label + " pressed key: " + Key.code + ".");
             if([LEFT, DOWN, 189, 109].includes(Key.code)) {
                 this.value = constrain(this.value - this.increment, this.min, this.max);
                 this.thumb.x = map(this.value, this.min, this.max, this.x + this.r, this.x3 - this.r);
@@ -935,7 +928,6 @@ Radiolist.prototype = {
     onmouserelease: function() {
         if(this.mouseOver() && this.selected && !this.disabled) {
             this.focused = true;
-            system.events.push("Element " + this.label + " pressed.");
         }
         this.selected = false;
         
@@ -954,7 +946,6 @@ Radiolist.prototype = {
     },
     onkeypress: function() {
         if(this.focused) {
-            system.events.push("RadioList " + this.label + " pressed key: " + Key.code + ".");
             if(Key.code === UP) {
                 println(true);
             }
@@ -1189,7 +1180,6 @@ Dropdown.prototype = {
                 this.cursor = "DEFAULT";
                 cursor(this.cursor);   
             }
-            system.events.push("Element " + this.label + " pressed.");
         } else {
             this.selected = false;
             this.toggled = false;
@@ -1230,47 +1220,45 @@ Dropdown.prototype = {
 inherit(Dropdown, Element);
 //}
 //}
+// icons and icon loading {
+    var Icon = function (name, sprite) {
+        /*
+        Icon object to be used whenever displaying icons, wether that be using KA's images or using shapes.
+        Usage:
 
-var Icon = function (name, sprite) {
-    /*
-    Icon object to be used whenever displaying icons, wether that be using KA's images or using shapes.
-    Usage:
-    
-        var icon = new Icon("Icon Name", function() {
-            // Load code
-        }, function() {
-            // Draw code
-        });
-        icon.load();
-        draw = function() {
-            icon.draw();
+            var icon = new Icon("Icon Name", function() {
+                // Load code
+            }, function() {
+                // Draw code
+            });
+            icon.load();
+            draw = function() {
+                icon.draw();
+            };
+
+        */
+        this.name = name;
+        this.sprite = sprite;
+        this.load = function() {
+            (background)(0, 0);
+            try {
+                this.sprite();
+            } catch(error) {
+                // Prints out error if `this.sprite` is not a function
+                println(error);
+            }
+            this.icon = get(0, 0, width, height);
         };
-        
-    */
-    this.name = name;
-    this.sprite = sprite;
-    this.load = function() {
-        (background)(0, 0);
-        try {
-            this.sprite();
-        } catch(error) {
-            // Prints out error if `this.sprite` is not a function
-            println(error);
-            return;
-        }
-        this.icon = get(0, 0, width, height);
-        system.events.push("Icon " + this.name + " loaded.");
+        this.draw = function(x, y) {
+            try {
+                image(this.icon, x, y);
+            } catch(error) {
+                println(error);
+            }
+        };
     };
-    this.draw = function(x, y) {
-        try {
-            image(this.icon, x, y);
-        } catch(error) {
-            println(error);
-            return;
-        }
-    };
-    system.events.push("Icon " + this.name + " created.");
-};
+
+}
 var App = function(name, load, draw) {
     /*
     App object to be used whenever making an application, widget or scene.
@@ -1288,24 +1276,8 @@ var App = function(name, load, draw) {
         
     */
     this.name = name;
-    this.load = function() {
-        try {
-            load();
-        } catch(error) {
-            println(error);
-            return;
-        }
-        system.events.push("App " + this.name + " loaded.");
-    };
-    this.draw = function() {
-        try {
-            draw();
-        } catch(error) {
-            println(error);
-            return;
-        }
-    };
-    system.events.push("App " + this.name + " created.");
+    this.load = load;
+    this.draw = draw;
 };
 
 var iconOne = new Icon("One", function() {
@@ -1315,7 +1287,6 @@ var iconOne = new Icon("One", function() {
 });
 var appOne = new App("One", function() {
     this.textbox = new Textbox({
-        label: "Test",
         placeholder: "Testbox... get it?",
         x: (width / 2) - config.textbox.w / 2,
         y: 25
@@ -1347,6 +1318,4 @@ var draw = function() {
     Mouse.released = false;
     // Same reason as `Mouse.released`
     Key.pressed = false;
-    println(this.__frameRate);
-    debug(system.events);
 };
