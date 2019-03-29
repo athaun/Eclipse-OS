@@ -1,7 +1,7 @@
 /**
  *
  * Eclipse Operating System Alpha
- * version 10.0#
+ * version 10.04
  *
  * Copyright 2019
  * Eclipse Development Team
@@ -9,9 +9,11 @@
  * Code made available under the MIT license
  *
  **/
+var developerMode = false;
 
 // Used for some browsers to force them to render smoothly, without this, it is very pixelated
 smooth();
+frameRate(60);
 
 // System {
 /*
@@ -19,6 +21,7 @@ Colors object to be used whenever using background, fill or stroke. This is to m
 Usage:
     fill(colors.red);
 */
+
 var colors = {
     red:        color(255, 0, 0),
     green:      color(0, 143, 0),
@@ -30,7 +33,8 @@ var colors = {
     darkgrey:   color(48, 48, 48),
     lightgrey:  color(196, 196, 196),
 };
-
+// this lets the logo run for a few extra seconds after apps and icons load, so people can admire the logo :) set `developerMode` to true to make it 0
+var extraBootTime = 400;
 var system = {
     // Only one user can be created as of now
     user: "Guest",
@@ -75,6 +79,7 @@ var system = {
     // Stores system events such as scene changes, applications ran, etc.
     events: []
 };
+
 //}
 // Event Handling {
 var Mouse = {
@@ -106,10 +111,10 @@ keyPressed = function() {
     Key.code = keyCode;
 };
 //}
+
 // GUI {
-/*
-See https://github.com/athaun/Eclipse-OS/wiki/GUI-Elements
-*/
+// See https://github.com/athaun/Eclipse-OS/wiki/GUI-Elements
+
 //Config {
 var config = {
     audioFeedback: null,
@@ -1218,6 +1223,64 @@ Dropdown.prototype = {
 inherit(Dropdown, Element);
 //}
 //}
+
+// App object {
+var App = function(name, load, draw) {
+    /*
+    App object to be used whenever making an application, widget or scene.
+    Usage:
+    
+        var appName = new App("App Name", function() {
+            // Load code
+        }, function() {
+            // Draw code
+        });
+        
+        boot() {
+            boot.load() {
+                app.load();
+            };
+        };
+        draw = function() {
+            app.draw();
+        };
+        
+    */
+    this.name = name;
+    this.load = load;
+    this.draw = draw;
+};
+//}
+// Apps {
+/** TODO: add multiple input forms */
+var welcome = new App("Welcome", function() {
+    this.textbox = new Textbox({
+        placeholder: "New Username",
+        x: (width / 2) - config.textbox.w / 2,
+        y: 250
+    });
+    
+}, function() {
+    this.textbox.draw();
+    
+    fill(colors.black);
+    textAlign(CENTER);
+    text("Welcome to Eclipse OS", width/2, 200);
+    
+    // Event handling for textbox
+    if(Mouse.pressed) {
+        this.textbox.onmousepress();
+    }
+    if(Mouse.released) {
+        this.textbox.onmouserelease();
+    }
+    if(Key.pressed) {
+        this.textbox.onkeypress();
+    }
+});
+
+//}
+
 // Icon object {
     var Icon = function (name, sprite) {
         /*
@@ -1249,73 +1312,155 @@ inherit(Dropdown, Element);
             try {
                 image(this.icon, x, y);
             } catch(error) {
-                println(error);
+                println("\nError displaying image(this.icon) \n" + error);
             }
         };
     };
 //}
-// App object {
-var App = function(name, load, draw) {
-    /*
-    App object to be used whenever making an application, widget or scene.
-    Usage:
-    
-        var app = new App("App Name", function() {
-            // Load code
-        }, function() {
-            // Draw code
-        });
-        app.load();
-        draw = function() {
-            app.draw();
-        };
-        
-    */
-    this.name = name;
-    this.load = load;
-    this.draw = draw;
-};
-//}
 // Icons {
+// this is a test
 var iconOne = new Icon("One", function() {
     noStroke();
-    fill(colors.theme);
-    ellipse(200, 200, 100, 100);
+    pushMatrix();
+    translate(200,200);
+    scale(1);
+    fill(74, 183, 255);
+    noStroke();
+    ellipse(0,0,30,30);
+    fill(255, 238, 0);
+    ellipse(-4,-3,18,18);
+    stroke(74, 183, 255);
+    fill(255, 255, 255);
+    ellipse(2,4,20,10);
+    noStroke();
+    fill(255, 255, 255);
+    stroke(74, 183, 255);
+    arc(0,0,10,10,-188,0);
+    noStroke();
+    fill(255, 255, 255);
+    ellipse(8,2,10,10);
+    ellipse(-3,3.2,6,6);
+    popMatrix();
 });
-iconOne.load();
+
 //}
-// Apps {
-var appOne = new App("One", function() {
-    this.textbox = new Textbox({
-        placeholder: "Testbox... get it?",
-        x: (width / 2) - config.textbox.w / 2,
-        y: 25
-    });
-}, function() {
-    this.textbox.draw();
-    // Event handling for textbox
-    if(Mouse.pressed) {
-        this.textbox.onmousepress();
-    }
-    if(Mouse.released) {
-        this.textbox.onmouserelease();
-    }
-    if(Key.pressed) {
-        this.textbox.onkeypress();
-    }
-});
-appOne.load();
-//}
+
+// Boot {
+    var Boot = function() {
+    
+    var wait = 0;
+    var finished = false;
+    var spin = 0;
+    var spinnerWidth = spin;
+    var animationLeg = 1;
+    var sunColor = color(255);
+    
+    // adding the this keyword allowes these to be accessed from outside this function
+    this.wait = 0;
+    this.finished = false;
+
+    Boot.prototype.logo = function() {
+        background(colors.black);
+        pushMatrix();
+        scale(0.3);
+        translate(800,300);
+        fill(255);
+        ellipse(200,200,364,364);
+        fill(sunColor);
+        ellipse(200,200,350,350);
+        fill(0);
+        arc(200, 200, 355, 354, -90, 90);
+        arc(200, 200, 190, 350, 90, 270);
+        popMatrix();
+        
+    };
+    
+    Boot.prototype.spinner = function() {
+       
+        stroke(255, 255, 255);
+        strokeWeight(2);
+        noFill();
+        switch (animationLeg) {
+            
+            case 1:
+                spin +=3;
+                
+                arc(300, 250, 30, 30, spin, spin + 90 * spin / 40);
+                if(spin > 180) {
+                    animationLeg = 2;
+                    
+                }
+                break;
+            case 2:
+                spin -=10;
+                arc(300, 250, 30, 30, spin - 90 * spin / 40, spin + 90);
+                if(spin < -20) {
+                    animationLeg = 1;
+                    spin = -33;
+                
+                }
+                break;
+            
+        }
+        
+    };
+    
+    Boot.prototype.load = function() {
+        this.wait ++;
+        if(!finished) {
+            // icons {
+                iconOne.load();
+            // }
+            // applications {
+                welcome.load();
+            //}
+        }
+    };
+    
+};
+
+var logoScreen = new Boot();
+
+// }
+
+// developer mode {
+   var developer_mode = function() {
+       // this mode makes it easier and faster for developers 
+       extraBootTime = 0;
+       system.user = "Developer";
+       system.version = "Eclipse OS Developers Edition";
+   }; 
+// }
 
 var draw = function() {
     background(colors.white);
-    // Draw icon and app
-    iconOne.draw();
-    appOne.draw();
-    // Update the time in the `system` object every frame
-    system.time.update();
-    // Set the `released` value of `Mouse` to false so `released` is only true for one frame after Mouse is released
+    
+    if(!logoScreen.finished) {
+        // boot system and load dependancies
+        logoScreen.load();
+        logoScreen.logo();
+        logoScreen.spinner();
+        if(logoScreen.wait > extraBootTime) {
+            logoScreen.finished = true;
+        }
+        fill(255);
+    } else {
+        // Update the time in the `system` object every frame
+        system.time.update();
+        
+        // Draw icon and app
+        // iconOne.draw();
+        welcome.draw();
+        
+        
+    }
+    if(developerMode) {
+        developer_mode();
+    }
+    /* 
+        Set the `released` value of `Mouse` to `false` so `released` is only true for one frame after         Mouse is released || `key.pressed` is set to `false` for the same reason as `Mouse.released`.
+        these must be placed at the very bottom of the draw
+    */
     Mouse.released = false;
-    // Same reason as `Mouse.released`
     Key.pressed = false;
 };
