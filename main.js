@@ -598,6 +598,7 @@ Textbox.prototype = {
     onkeypress: function() {
         var SPACE = 32;
         if(this.focused) {
+            system.events.push("Textbox " + this.label + " pressed key: " + Key.code + ".");
             switch(Key.code) {
                 case ENTER:
                     if(!this.live) {
@@ -666,6 +667,7 @@ Textbox.prototype = {
             if(!complete) {
                 this.caret = this.text.length;   
             }
+            system.events.push("Element " + this.label + " pressed.");
         }
         this.selected = false;
     }
@@ -845,6 +847,7 @@ Slider.prototype = {
             try {
                 playSound(config.audioFeedback);
             } catch(error) {}
+            system.events.push("Element " + this.label + " pressed.");
         }
         this.selected = false;
         this.textbox.onmouserelease();
@@ -858,6 +861,7 @@ Slider.prototype = {
     },
     onkeypress: function() {
         if(this.focused) {
+            system.events.push("Slider " + this.label + " pressed key: " + Key.code + ".");
             if([LEFT, DOWN, 189, 109].includes(Key.code)) {
                 this.value = constrain(this.value - this.increment, this.min, this.max);
                 this.thumb.x = map(this.value, this.min, this.max, this.x + this.r, this.x3 - this.r);
@@ -931,6 +935,7 @@ Radiolist.prototype = {
     onmouserelease: function() {
         if(this.mouseOver() && this.selected && !this.disabled) {
             this.focused = true;
+            system.events.push("Element " + this.label + " pressed.");
         }
         this.selected = false;
         
@@ -949,6 +954,7 @@ Radiolist.prototype = {
     },
     onkeypress: function() {
         if(this.focused) {
+            system.events.push("RadioList " + this.label + " pressed key: " + Key.code + ".");
             if(Key.code === UP) {
                 println(true);
             }
@@ -1183,6 +1189,7 @@ Dropdown.prototype = {
                 this.cursor = "DEFAULT";
                 cursor(this.cursor);   
             }
+            system.events.push("Element " + this.label + " pressed.");
         } else {
             this.selected = false;
             this.toggled = false;
@@ -1281,8 +1288,23 @@ var App = function(name, load, draw) {
         
     */
     this.name = name;
-    this.load = load;
-    this.draw = draw;
+    this.load = function() {
+        try {
+            load();
+        } catch(error) {
+            println(error);
+            return;
+        }
+        system.events.push("App " + this.name + " loaded.");
+    };
+    this.draw = function() {
+        try {
+            draw();
+        } catch(error) {
+            println(error);
+            return;
+        }
+    };
     system.events.push("App " + this.name + " created.");
 };
 
@@ -1293,6 +1315,7 @@ var iconOne = new Icon("One", function() {
 });
 var appOne = new App("One", function() {
     this.textbox = new Textbox({
+        label: "Test",
         placeholder: "Testbox... get it?",
         x: (width / 2) - config.textbox.w / 2,
         y: 25
@@ -1324,4 +1347,6 @@ var draw = function() {
     Mouse.released = false;
     // Same reason as `Mouse.released`
     Key.pressed = false;
+    println(this.__frameRate);
+    debug(system.events);
 };
