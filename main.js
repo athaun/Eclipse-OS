@@ -13,12 +13,11 @@
 // Used for some browsers to force them to render smoothly, without this, it is very pixelated
 smooth();
 
+// System {
 /*
 Colors object to be used whenever using background, fill or stroke. This is to make it easier to change the colors without hacing to go through the code and change every instance of the particular color.
 Usage:
-
     fill(colors.red);
-
 */
 var colors = {
     red:        color(255, 0, 0),
@@ -76,7 +75,7 @@ var system = {
     // Stores system events such as scene changes, applications ran, etc.
     events: []
 };
-
+//}
 // Event Handling {
 var Mouse = {
     pressed: false,
@@ -107,7 +106,6 @@ keyPressed = function() {
     Key.code = keyCode;
 };
 //}
-
 // GUI {
 /*
 See https://github.com/athaun/Eclipse-OS/wiki/GUI-Elements
@@ -541,7 +539,7 @@ Textbox.prototype = {
         stroke(this.inline ? (this.focused ? config.fill.outline : lerpColor(color(0, 0, 0, 1), config.fill.outline, this.transition / 5)) : this.focused ? this.fill: config.fill.outline);
         fill(this.inline ? color(0, 0, 0, 1) : lerpColor(color(255), config.fill.disabled, this.transition / 10));
         (this.shape)(this.x, this.y, this.w, this.h, this.r);
-        if(textWidth(this.text) > this.w - 5) {
+        if(textWidth(this.text) > this.w - 10) {
             var n = this.text.length;
             var w = 0;
             for(var i = 0; i < this.text.length; i++) {
@@ -558,12 +556,12 @@ Textbox.prototype = {
         fill(this.label === "" ? config.fill.disabled : 0);
         textAlign(LEFT, CENTER);
         textFont(config.font);
-        text(this.label === "" && !this.focused? this.placeholder : this.label, this.x + 5, this.y2);
+        text(this.label === "" && !this.focused? this.placeholder : this.label, this.x + 10, this.y2);
         if(this.mouseOver() && this.text.length > 0 && !keyIsPressed) {
             var caret = this.text.length;
             var complete = false;
             for(var i = 0; i < this.text.length; i++) {
-                if(textWidth(this.text.substring(0, i)) - textWidth(this.text.substring(i - 1, i)) / 2 > mouseX - this.x - 5) {
+                if(textWidth(this.text.substring(0, i)) - textWidth(this.text.substring(i - 1, i)) / 2 > mouseX - this.x - 10) {
                     caret = i - 1;
                     complete = true;
                     break;
@@ -573,10 +571,10 @@ Textbox.prototype = {
                 caret = this.text.length;   
             }
             stroke(0, 0, 0, 100);
-            line(this.x + textWidth(this.label.substring(0, caret)) + 5, this.y + 6, this.x + textWidth(this.label.substring(0, caret)) + 5, this.y3 - 6);
+            line(this.x + textWidth(this.label.substring(0, caret)) + 10, this.y + 6, this.x + textWidth(this.label.substring(0, caret)) + 10, this.y3 - 6);
         } else {
             stroke(floor((millis() % 500) / 250) === 0 && this.focused ? color(0) : color(0, 0, 0, 5));
-            line(this.x + textWidth(this.label.substring(0, this.caret)) + 5, this.y + 6, this.x + textWidth(this.label.substring(0, this.caret)) + 5, this.y3 - 6);
+            line(this.x + textWidth(this.label.substring(0, this.caret)) + 10, this.y + 6, this.x + textWidth(this.label.substring(0, this.caret)) + 10, this.y3 - 6);
         }
         this.animate();
         if(this.mouseOver()) {
@@ -1220,12 +1218,11 @@ Dropdown.prototype = {
 inherit(Dropdown, Element);
 //}
 //}
-// icons and icon loading {
+// Icon object {
     var Icon = function (name, sprite) {
         /*
         Icon object to be used whenever displaying icons, wether that be using KA's images or using shapes.
         Usage:
-
             var icon = new Icon("Icon Name", function() {
                 // Load code
             }, function() {
@@ -1235,7 +1232,6 @@ inherit(Dropdown, Element);
             draw = function() {
                 icon.draw();
             };
-
         */
         this.name = name;
         this.sprite = sprite;
@@ -1257,8 +1253,8 @@ inherit(Dropdown, Element);
             }
         };
     };
-
-}
+//}
+// App object {
 var App = function(name, load, draw) {
     /*
     App object to be used whenever making an application, widget or scene.
@@ -1279,12 +1275,16 @@ var App = function(name, load, draw) {
     this.load = load;
     this.draw = draw;
 };
-
+//}
+// Icons {
 var iconOne = new Icon("One", function() {
     noStroke();
     fill(colors.theme);
     ellipse(200, 200, 100, 100);
 });
+iconOne.load();
+//}
+// Apps {
 var appOne = new App("One", function() {
     this.textbox = new Textbox({
         placeholder: "Testbox... get it?",
@@ -1304,8 +1304,8 @@ var appOne = new App("One", function() {
         this.textbox.onkeypress();
     }
 });
-iconOne.load();
 appOne.load();
+//}
 
 var draw = function() {
     background(colors.white);
