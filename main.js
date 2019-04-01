@@ -9,33 +9,37 @@
  * Code made available under the MIT license
  *
  **/
+ 
+// Speeds things up for easier testing
 var developerMode = false;
-
 // Used for some browsers to force them to render smoothly, without this, it is very pixelated
 smooth();
+// To keep frame rate uniformed, i.e. animation won't be too fast
 frameRate(60);
 
 // System {
 /*
 Colors object to be used whenever using background, fill or stroke. This is to make it easier to change the colors without hacing to go through the code and change every instance of the particular color.
-Usage:
-    fill(colors.red);
-*/
 
+Usage:
+
+    fill(colors.red);
+    
+*/
 var colors = {
+    theme:      color(189, 0, 0),
     red:        color(255, 0, 0),
     green:      color(0, 143, 0),
     blue:       color(0, 0, 255),
     white:      color(255),
+    yellow:     color(255, 255, 0),
     black:      color(0),
     grey:       color(170),
-    theme:      color(189, 0, 0),   // Eclipse OS default dark red theme
     darkgrey:   color(48, 48, 48),
     lightgrey:  color(196, 196, 196),
 };
-// this lets the logo run for a few extra seconds after apps and icons load, so people can admire the logo :) set `developerMode` to true to make it 0
-var extraBootTime = 400;
 var system = {
+    version: "Alpha 0.2",
     // Only one user can be created as of now
     user: "Guest",
     password: "",
@@ -47,7 +51,15 @@ var system = {
         second: null,
         // AM or PM
         timeStamp: null,
-        formattedTime: null,
+        /*
+        Should be used whenever dealing with time. Format is "HH:MM AM/PM".
+        
+        Usage:
+        
+            println(system.time.formatted);
+        
+        */
+        formatted: null,
         update: function() {
             this.hour = hour();
             this.minute = minute();
@@ -55,29 +67,32 @@ var system = {
             if (this.minute < 10) {
                 if (this.hour > 12) {
                     this.timeStamp = "PM";
-                    this.formattedTime = this.hour - 12 + ":0" + this.minute + " " + this.timeStamp;
+                    this.formatted = this.hour - 12 + ":0" + this.minute + " " + this.timeStamp;
                 } else {
                     this.timeStamp = "AM";
-                    this.formattedTime = this.hour + ":0" + this.minute + " " + this.timeStamp;
+                    this.formatted = this.hour + ":0" + this.minute + " " + this.timeStamp;
                 }
             } else {
                 if (this.hour > 12) {
                     this.timeStamp = "PM";
-                    this.formattedTime = this.hour - 12 + ":" + this.minute + " " + this.timeStamp;
+                    this.formatted = this.hour - 12 + ":" + this.minute + " " + this.timeStamp;
                 } else {
                     this.timeStamp = "AM";
-                    this.formattedTime = this.hour + ":" + this.minute + " " + this.timeStamp;
+                    this.formatted = this.hour + ":" + this.minute + " " + this.timeStamp;
                 }
             }
         }
     },
-    scene: "logo",
-    version: "Alpha 0.2",
+    scene: "boot",
     // Works just like colors. The higher the number, the higher the brightness.
     screenBrightness: 0,
     loggedIn: true,
+    // Stores all icons
+    icons: [],
+    // Stores all applications
+    apps: [],
     // Stores system events such as scene changes, applications ran, etc.
-    events: []
+    events: [],
 };
 
 //}
@@ -111,7 +126,6 @@ keyPressed = function() {
     Key.code = keyCode;
 };
 //}
-
 // GUI {
 // See https://github.com/athaun/Eclipse-OS/wiki/GUI-Elements
 
@@ -1223,78 +1237,23 @@ Dropdown.prototype = {
 inherit(Dropdown, Element);
 //}
 //}
-
-// App object {
-var App = function(name, load, draw) {
-    /*
-    App object to be used whenever making an application, widget or scene.
-    Usage:
-    
-        var appName = new App("App Name", function() {
-            // Load code
-        }, function() {
-            // Draw code
-        });
-        
-        boot() {
-            boot.load() {
-                app.load();
-            };
-        };
-        draw = function() {
-            app.draw();
-        };
-        
-    */
-    this.name = name;
-    this.load = load;
-    this.draw = draw;
-};
-//}
-// Apps {
-/** TODO: add multiple input forms */
-var welcome = new App("Welcome", function() {
-    this.textbox = new Textbox({
-        placeholder: "New Username",
-        x: (width / 2) - config.textbox.w / 2,
-        y: 250
-    });
-    
-}, function() {
-    this.textbox.draw();
-    
-    fill(colors.black);
-    textAlign(CENTER);
-    text("Welcome to Eclipse OS", width/2, 200);
-    
-    // Event handling for textbox
-    if(Mouse.pressed) {
-        this.textbox.onmousepress();
-    }
-    if(Mouse.released) {
-        this.textbox.onmouserelease();
-    }
-    if(Key.pressed) {
-        this.textbox.onkeypress();
-    }
-});
-
-//}
-
 // Icon object {
     var Icon = function (name, sprite) {
         /*
-        Icon object to be used whenever displaying icons, wether that be using KA's images or using shapes.
+        Icon object to be used whenever displaying icons, wether that be using KA's images or using shapes. Icons are to be stored in the `system.icons` array.
+        
         Usage:
+        
             var icon = new Icon("Icon Name", function() {
                 // Load code
             }, function() {
                 // Draw code
             });
-            icon.load();
+            // Icon loads in boot
             draw = function() {
                 icon.draw();
             };
+            
         */
         this.name = name;
         this.sprite = sprite;
@@ -1318,8 +1277,8 @@ var welcome = new App("Welcome", function() {
     };
 //}
 // Icons {
-// this is a test
-var iconOne = new Icon("One", function() {
+// Test image
+var testIcon = new Icon("Weather", function() {
     noStroke();
     pushMatrix();
     translate(200,200);
@@ -1342,120 +1301,163 @@ var iconOne = new Icon("One", function() {
     ellipse(-3,3.2,6,6);
     popMatrix();
 });
-
+system.icons = [testIcon];
 //}
-
-// Boot {
-    var Boot = function() {
+// App object {
+var App = function(name, load, draw) {
+    /*
+    App object to be used whenever making an application, widget or scene. Apps are to be stored in the `system.apps` array.
     
-    var wait = 0;
-    var finished = false;
-    var spin = 0;
-    var spinnerWidth = spin;
-    var animationLeg = 1;
-    var sunColor = color(255);
+    Usage:
     
-    // adding the this keyword allowes these to be accessed from outside this function
-    this.wait = 0;
-    this.finished = false;
-
-    Boot.prototype.logo = function() {
-        background(colors.black);
-        pushMatrix();
-        scale(0.3);
-        translate(800,300);
-        fill(255);
-        ellipse(200,200,364,364);
-        fill(sunColor);
-        ellipse(200,200,350,350);
-        fill(0);
-        arc(200, 200, 355, 354, -90, 90);
-        arc(200, 200, 190, 350, 90, 270);
-        popMatrix();
+        var appName = new App("App Name", function() {
+            // Load code
+        }, function() {
+            // Draw code
+        });
+        // App loads in boot
+        draw = function() {
+            app.draw();
+        };
         
-    };
-    
-    Boot.prototype.spinner = function() {
-       
-        stroke(255, 255, 255);
-        strokeWeight(2);
-        noFill();
-        switch (animationLeg) {
-            
-            case 1:
-                spin +=3;
-                
-                arc(300, 250, 30, 30, spin, spin + 90 * spin / 40);
-                if(spin > 180) {
-                    animationLeg = 2;
-                    
-                }
-                break;
-            case 2:
-                spin -=10;
-                arc(300, 250, 30, 30, spin - 90 * spin / 40, spin + 90);
-                if(spin < -20) {
-                    animationLeg = 1;
-                    spin = -33;
-                
-                }
-                break;
-            
-        }
-        
-    };
-    
-    Boot.prototype.load = function() {
-        this.wait ++;
-        if(!finished) {
-            // icons {
-                iconOne.load();
-            // }
-            // applications {
-                welcome.load();
-            //}
-        }
-    };
-    
+    */
+    this.name = name;
+    this.load = load;
+    this.draw = draw;
 };
-
-var logoScreen = new Boot();
-
-// }
-
-// developer mode {
-   var developer_mode = function() {
-       // this mode makes it easier and faster for developers 
-       extraBootTime = 0;
-       system.user = "Developer";
-       system.version = "Eclipse OS Developers Edition";
-   }; 
-// }
-
+//}
+// Apps {
+/** TODO: add multiple input forms */
+var welcome = new App("Welcome", function() {
+    this.usernameBox = new Textbox({
+        placeholder: "Username",
+        x: (width / 2) - config.textbox.w / 2,
+        y: 250
+    });
+    this.passwordBox = new Textbox({
+        placeholder: "Password",
+        x: (width / 2) - config.textbox.w / 2,
+        y: 290
+    });
+    this.elements = [this.usernameBox, this.passwordBox];
+}, function() {
+    this.elements.forEach(function(element) {
+        element.draw();
+    });
+    fill(colors.black);
+    textAlign(CENTER);
+    text("Welcome to Eclipse OS", width/2, 200);
+    
+    // Event handling for textbox
+    if(Mouse.pressed) {
+        this.elements.forEach(function(element) {
+            element.onmousepress();
+        });
+    }
+    if(Mouse.released) {
+        this.elements.forEach(function(element) {
+            element.onmouserelease();
+        });
+    }
+    if(Key.pressed) {
+        this.elements.forEach(function(element) {
+            element.onkeypress();
+        });
+    }
+});
+system.apps = [welcome];
+//}
+// Boot {
+var loading = {
+    // Which asset is being loading in the `assets` array
+    index: 0,
+    // Loading progress, 0 to 100
+    progress: 0
+};
+var boot = function() {
+    // Animation is based on frame count, won't replay when program is editted
+    var animation = constrain(frameCount, 0, 360);
+    // Skip animation if `developerMode` is true
+    if(developerMode) {
+        animation = 360;
+    }
+    // Load assets if animation is complete
+    if(animation === 360) {
+        // Merge `system.icons` and `system.apps`
+        var assets = system.icons.concat(system.apps);
+        if(loading.index < assets.length) {
+            try {
+                assets[loading.index].load();
+            } catch(error) {
+                println(error);
+            }
+            loading.index++;
+            loading.progress = constrain(map(loading.index, 0, assets.length, 0, 100), 0, 100);
+        }
+    }
+    // Boot animation
+    background(colors.black);
+    pushMatrix();
+    // Rotate from 30 to 0 degrees
+    rotate(map(animation, 0, 360, 30, 0));
+    // Make it appear as if the sun is moving around
+    translate(map(sin(animation), -1, 1, -100, 100), map(sin(animation), -1, 1, -25, 25));
+    noStroke();
+    fill(colors.yellow);
+    // Sun
+    ellipse(width / 2, height / 2.5, animation / 1.5, animation / 1.5);
+    fill(colors.black);
+    // Planets passing by
+    ellipse(width - animation * 2, animation, 100, 100);
+    ellipse(width + 400 - animation * 3, animation + 50, 50, 50);
+    // Planet that eclipses sun
+    ellipse(map(animation, 0, 360, width * 2, width - 175), height / 2.5, animation, animation);
+    // Glow of sun after being eclipsed, not shown until animation is over
+    // Starts to increase at frame 380
+    var glow = constrain(map(frameCount, 380, 400, 0, 2.5), 0, 4);
+    stroke(colors.white);
+    noFill();
+    if(animation === 360 || developerMode) {
+        // No glow if frame count is not more than 380
+        if(glow === 0) {
+            noStroke();
+        }
+        if(frameCount < 400) {
+            strokeWeight(glow);
+        } else {
+            // Make glow pulse after shown
+            strokeWeight(map(sin(frameCount * 2), -1, 1, 2, 4));
+        }
+        // Ellipse drawn over eclipse, with no fill. Used to show glow as stroke
+        ellipse(width / 2, height / 2.5, animation / 1.5, animation / 1.5);
+        // Loading spinner
+        strokeWeight(constrain(map(frameCount, 380, 400, 0, 2.5), 0, 2.5));
+        arc(width / 2, 425, 25, 25, 0 + frameCount * 8, 75 + sin(frameCount * 5) * 75 + frameCount * 8);
+        // Show percentage if frame count is greater than 400 or developer mode
+        if((frameCount > 400 && loading.progress < 100) || developerMode) {
+            fill(colors.white);
+            textAlign(CENTER);
+            text(round(loading.progress) + "%", width / 2, 475);
+        }
+    }
+    popMatrix();
+    // CHange scenes after animation and loading is complete or developer mode 
+    if((frameCount > 500 || developerMode) && loading.progress === 100) {
+        system.scene = "login";
+    }
+};
+//}
+// Drawing {
 var draw = function() {
     background(colors.white);
-    
-    if(!logoScreen.finished) {
-        // boot system and load dependancies
-        logoScreen.load();
-        logoScreen.logo();
-        logoScreen.spinner();
-        if(logoScreen.wait > extraBootTime) {
-            logoScreen.finished = true;
-        }
-        fill(255);
+    if(system.scene === "boot") {
+        boot();
     } else {
-        // Update the time in the `system` object every frame
+        // Update the time in the `system` object every frame, should be at beginning of the `draw` loop
         system.time.update();
         
         // Draw icon and app
-        // iconOne.draw();
         welcome.draw();
-        
-        
-    }
-    if(developerMode) {
-        developer_mode();
     }
     /* 
         Set the `released` value of `Mouse` to `false` so `released` is only true for one frame after         Mouse is released || `key.pressed` is set to `false` for the same reason as `Mouse.released`.
@@ -1464,3 +1466,4 @@ var draw = function() {
     Mouse.released = false;
     Key.pressed = false;
 };
+//}
