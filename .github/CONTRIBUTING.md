@@ -1,3 +1,7 @@
+Found any bugs or have a suggestion? Check out the [Bug Report](https://github.com/athaun/Eclipse-OS/blob/master/.github/ISSUE_TEMPLATE/bug_report.md) and [Feature Request](https://github.com/athaun/Eclipse-OS/blob/master/.github/ISSUE_TEMPLATE/feature_request.md) issue templates.
+
+<hr>
+
 # Contributing
 When contributing to this repository, please first discuss the change you wish to make with the lead developers of the Eclipse Development Team before making a change.
 
