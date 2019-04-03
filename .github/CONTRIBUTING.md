@@ -12,3 +12,5 @@ This is mainly for developers of the Eclipse Development Team but anyone can con
 > Note that if you are working on a major change or feature you should create a new branch.
 ## Standards
 All code must follow the [Code Guidelines](https://github.com/athaun/Eclipse-OS/wiki/Code-Guidelines). Do not add features that have not been approved by the lead developers of the Eclipse Development Team as they will most likely not be implemented.
+
+Refer to the [How to Write a Git Commit](https://chris.beams.io/posts/git-commit/) guide for best practices when creating a commit.
