@@ -1,7 +1,7 @@
 /**
  *
- * Eclipse Operating System Alpha
- * version 10.04
+ * Eclipse Operating System
+ * version 4.2.2
  *
  * Copyright 2019
  * Eclipse Development Team
@@ -39,9 +39,9 @@ var colors = {
     lightgrey:  color(196, 196, 196),
 };
 var system = {
-    version: "Alpha 0.2",
+    version: "4.2.2",
     // Only one user can be created as of now
-    user: "Guest",
+    username: "Guest",
     password: "",
     // Time object to be used whenever displaying or printing time
     time: {
@@ -95,7 +95,7 @@ var system = {
     events: [],
 };
 
-//}
+// }
 // Event Handling {
 var Mouse = {
     pressed: false,
@@ -125,11 +125,11 @@ keyPressed = function() {
     Key.pressed = true;
     Key.code = keyCode;
 };
-//}
+// }
 // GUI {
 // See https://github.com/athaun/Eclipse-OS/wiki/GUI-Elements
 
-//Config {
+// Config {
 var config = {
     audioFeedback: null,
     animationStep: 0.2,
@@ -137,20 +137,20 @@ var config = {
     strokeWeight: 1,
     symbolWeight: 3,
     fill: {
-        accent: color(184, 0, 0),
-        outline: color(200),
-        background: color(240),
-        disabled: color(175),
+        accent: color(colors.theme),
+        outline: color(colors.grey),
+        background: color(colors.lightgrey),
+        disabled: color(colors.grey),
         gradient: true
     },
     shadow: {
         min: 25,
         max: 27.5,
-        fill: color(0, 0, 0, 2.5)
+        fill: color(colors.black, 2.5)
     },
     gradient: {
-        startColor: color(255, 255, 255, 50),
-        stopColor: color(255, 255, 255, 0),
+        startColor: color(colors.white, 50),
+        stopColor: color(colors.white, 0),
         size: 25
     }
 };
@@ -167,7 +167,7 @@ config.button = {
     r: 50
 };
 config.symbolbutton = {
-    r: 15
+    r: 20
 };
 config.radiobutton = {
     r: 10
@@ -203,8 +203,8 @@ config.textbox = {
     obfuscation: "•",
     placeholder: " Vocal Search"
 };
-//}
-//Functions {
+// }
+// Functions {
 String.prototype.toTitleCase = function(str) {
     return this.replace(/\w\S*/g, function(word) {
         return word.charAt(0).toUpperCase() + word.substr(1).toLowerCase();
@@ -225,8 +225,8 @@ var blur = function(x, y, w, h, n) {
     image(get(x, y, w, h), x, y, w / n, h / n);
     image(get(x, y, w / n, h / n), x, y, w, h);
 };
-//}
-//Symbols {
+// }
+// Symbols {
 var symbols = {
     checkmark: function(x, y, scale) {
         scale = scale || 1;
@@ -255,8 +255,8 @@ var symbols = {
         endShape();
     }
 };
-//}
-// GUI Element functions {
+// }
+// Special Functions {
 var Element = function(params) {
     this.x = params.x;
     this.y = params.y;
@@ -372,9 +372,9 @@ Element.prototype = {
     onmousescroll: noop,
     onkeypress: noop
 };
-//}
+// }
 
-//Tooltip {
+// Tooltip {
 var Tooltip = function(params) {
     this.init = function() {
         params.label = this.label || params.label || "";
@@ -389,7 +389,7 @@ var Tooltip = function(params) {
         Element.call(this, params);
         this.noCursorChange = true;
         this.disabled = this.disabled || params.disabled;
-        this.fill = this.disabled ? config.fill.disabled : (this.fill || params.fill || color(194, 194, 194, 200));
+        this.fill = this.disabled ? config.fill.disabled : (this.fill || params.fill || color(colors.darkgrey, 200));
         this.bottom = this.y + this.h + config.tooltip.arrowHeight * 2 > height;
     };
     this.init();
@@ -410,25 +410,25 @@ Tooltip.prototype = {
         if(this.x - this.w / 2 < 5) {
             fill(this.fill);
             (this.shape)(this.x - (this.x - this.w / 2) + config.tooltip.arrowHeight, this.y + (this.h / 2) + config.tooltip.arrowHeight - (this.bottom && this.h + config.tooltip.arrowHeight * 2), this.w, this.h, this.r);
-            fill(255);
+            fill(colors.white);
             text(this.label, this.x - (this.x - this.w / 2) + config.tooltip.arrowHeight, this.y + (this.h / 2) + config.tooltip.arrowHeight - (this.bottom && this.h + config.tooltip.arrowHeight * 2));
         } else if(this.x + this.w / 2 > width - 5) {
             fill(this.fill);
             (this.shape)(this.x - ((this.x + this.w / 2) - width) - config.tooltip.arrowHeight, this.y + (this.h / 2) + config.tooltip.arrowHeight - (this.bottom && this.h + config.tooltip.arrowHeight * 2), this.w, this.h, this.r);
-            fill(255);
+            fill(colors.white);
             text(this.label, this.x - ((this.x + this.w / 2) - width) - config.tooltip.arrowHeight, this.y + (this.h / 2) + config.tooltip.arrowHeight - (this.bottom && this.h + config.tooltip.arrowHeight * 2));
         } else {
             fill(this.fill);
             (this.shape)(this.x, this.y + (this.h / 2) + config.tooltip.arrowHeight - (this.bottom && this.h + config.tooltip.arrowHeight * 2), this.w, this.h, this.r);
-            fill(255);
+            fill(colors.white);
             text(this.label, this.x, this.y + (this.h / 2) + config.tooltip.arrowHeight - (this.bottom && this.h + config.tooltip.arrowHeight * 2));
         }
         popStyle();
     }
 };
 inherit(Tooltip, Element);
-//}
-//Button {
+// }
+// Button {
 var Button = function(params) {
     this.init = function() {
         params.label = this.label || params.label || "";
@@ -455,10 +455,10 @@ Button.prototype = {
         strokeWeight(config.strokeWeight);
         noStroke();
         //stroke(this.disabled ? config.fill.outline : this.fill);
-        fill(lerpColor(this.fill, color(255), this.transition / 10));
+        fill(lerpColor(this.fill, color(colors.white), this.transition / 10));
         (this.shape)(this.x, this.y, this.w, this.h, this.r);
         this.drawGradient();
-        fill(255);
+        fill(colors.white);
         textAlign(CENTER, CENTER);
         textFont(config.font);
         text(this.label, this.x2, this.y2);
@@ -467,8 +467,8 @@ Button.prototype = {
     }
 };
 inherit(Button, Element);
-//}
-//Symbol Button {
+// }
+// Symbol Button {
 var SymbolButton = function(params) {
     this.init = function() {
         params.shape = ellipse;
@@ -499,19 +499,19 @@ SymbolButton.prototype = {
             strokeWeight(config.strokeWeight);
             stroke(config.fill.disabled);
         }
-        fill(lerpColor(color(0, 0, 0, 1), config.fill.accent, this.transition));
+        fill(lerpColor(color(colors.black, 1), config.fill.accent, this.transition));
         (this.shape)(this.x, this.y, this.r * 2, this.r * 2);
         this.animate();
         if(typeof this.symbol === "string") {
-            fill(lerpColor(config.fill.disabled, color(255), this.transition));
+            fill(lerpColor(config.fill.disabled, color(colors.white), this.transition));
             textAlign(CENTER, CENTER);
             textFont(config.font, 15);
             text(this.symbol, this.x2, this.y2);
         } else {
             strokeWeight(config.symbolWeight);
-            stroke(lerpColor(config.fill.disabled, color(255), this.transition));
-            fill(lerpColor(config.fill.disabled, color(255), this.transition));
-            this.symbol(this.x2, this.y2, 1);   
+            stroke(lerpColor(config.fill.disabled, color(colors.white), this.transition));
+            fill(lerpColor(config.fill.disabled, color(colors.white), this.transition));
+            this.symbol(this.x2, this.y2, 1.5);   
         }
         if(this.mouseOver() && this.label !== "") {
             this.tooltip.draw();   
@@ -520,8 +520,8 @@ SymbolButton.prototype = {
     }
 };
 inherit(SymbolButton, Element);
-//}
-//Textbox {
+// }
+// Textbox {
 var Textbox = function(params) {
     this.init = function() {
         params.shape = rect;
@@ -555,8 +555,8 @@ Textbox.prototype = {
         rectMode(LEFT);
         ellipseMode(CORNER);
         strokeWeight(config.strokeWeight);
-        stroke(this.inline ? (this.focused ? config.fill.outline : lerpColor(color(0, 0, 0, 1), config.fill.outline, this.transition / 5)) : this.focused ? this.fill: config.fill.outline);
-        fill(this.inline ? color(0, 0, 0, 1) : lerpColor(color(255), config.fill.disabled, this.transition / 10));
+        stroke(this.inline ? (this.focused ? config.fill.outline : lerpColor(color(colors.black, 1), config.fill.outline, this.transition / 5)) : this.focused ? this.fill: config.fill.outline);
+        fill(this.inline ? color(colors.black, 1) : lerpColor(color(colors.white), config.fill.disabled, this.transition / 10));
         (this.shape)(this.x, this.y, this.w, this.h, this.r);
         if(textWidth(this.text) > this.w - 10) {
             var n = this.text.length;
@@ -589,10 +589,10 @@ Textbox.prototype = {
             if(!complete) {
                 caret = this.text.length;   
             }
-            stroke(0, 0, 0, 100);
+            stroke(colors.black, 100);
             line(this.x + textWidth(this.label.substring(0, caret)) + 10, this.y + 6, this.x + textWidth(this.label.substring(0, caret)) + 10, this.y3 - 6);
         } else {
-            stroke(floor((millis() % 500) / 250) === 0 && this.focused ? color(0) : color(0, 0, 0, 5));
+            stroke(floor((millis() % 500) / 250) === 0 && this.focused ? color(colors.black) : color(colors.black, 5));
             line(this.x + textWidth(this.label.substring(0, this.caret)) + 10, this.y + 6, this.x + textWidth(this.label.substring(0, this.caret)) + 10, this.y3 - 6);
         }
         this.animate();
@@ -685,8 +685,8 @@ Textbox.prototype = {
     }
 };
 inherit(Textbox, Element);
-//}
-//Radio Button {
+// }
+// Radio Button {
 var RadioButton = function(params) {
     this.init = function() {
         params.shape = ellipse;
@@ -709,21 +709,21 @@ RadioButton.prototype = {
             fill(config.fill.disabled);
         } else if(this.toggled) {
             stroke(this.fill);
-            fill(lerpColor(this.fill, color(255), this.transition / 10));
+            fill(lerpColor(this.fill, color(colors.white), this.transition / 10));
         } else if(!this.toggled) {
             stroke(config.fill.outline);
-            fill(lerpColor(color(255), color(0), this.transition / 10));
+            fill(lerpColor(color(colors.white), color(colors.black), this.transition / 10));
         }
         ellipseMode(CORNER);
         (this.shape)(this.x, this.y, this.r * 2, this.r * 2);
         if(this.toggled) {
             stroke(this.fill);
-            fill(this.disabled ? config.fill.outline : color(255));
+            fill(this.disabled ? config.fill.outline : color(colors.white));
             ellipseMode(CENTER);
             (this.shape)(this.x2, this.y2, this.r, this.r);
         }
         this.animate();
-        fill(this.disabled ? config.fill.disabled : color(0));
+        fill(this.disabled ? config.fill.disabled : color(colors.black));
         textAlign(LEFT, CENTER);
         textFont(config.font);
         text(this.label, this.x3 + 5, this.y2);
@@ -731,8 +731,8 @@ RadioButton.prototype = {
     }
 };
 inherit(RadioButton, Element);
-//}
-//Checkbox {
+// }
+// Checkbox {
 var Checkbox = function(params) {
     this.init = function() {
         params.shape = rect;
@@ -758,20 +758,20 @@ Checkbox.prototype = {
             fill(config.fill.disabled);
         } else if(this.toggled) {
             stroke(this.fill);
-            fill(lerpColor(this.fill, color(255), this.transition / 10));
+            fill(lerpColor(this.fill, color(colors.white), this.transition / 10));
         } else if(!this.toggled) {
             stroke(config.fill.outline);
-            fill(lerpColor(color(255), color(0), this.transition / 10));
+            fill(lerpColor(color(colors.white), color(colors.black), this.transition / 10));
         }
         (this.shape)(this.x, this.y, this.w, this.h, this.r);
             this.drawGradient();
         if(this.toggled) {
             strokeWeight(config.symbolWeight);
-            stroke(this.disabled ? config.fill.outline : color(255));
+            stroke(this.disabled ? config.fill.outline : color(colors.white));
             symbols.checkmark(this.x2, this.y2, 0.75);
         }
         this.animate();
-        fill(this.disabled ? config.fill.disabled : color(0));
+        fill(this.disabled ? config.fill.disabled : color(colors.black));
         textAlign(LEFT, CENTER);
         textFont(config.font);
         text(this.label, this.x3 + 5, this.y2);
@@ -779,8 +779,8 @@ Checkbox.prototype = {
     }
 };
 inherit(Checkbox, Element);
-//}
-//Slider {
+// }
+// Slider {
 var Slider = function(params) {
     this.init = function() {
         params.shape = ellipse;
@@ -802,7 +802,7 @@ var Slider = function(params) {
         };
         this.increment = params.increment || (params.precise && 0.1) || ((Math.log(this.max - this.min) * Math.LOG10E + 1 | 0) <= 1 ? 0.1 : 1);
         this.precise = params.precise || this.increment < 1;
-        this.fill = this.disabled ? config.fill.disabled : (this.fill || params.fill || color(255));
+        this.fill = this.disabled ? config.fill.disabled : (this.fill || params.fill || color(colors.white));
         this.textbox = new Textbox({
             x: this.x3 - 35,
             y: this.y - 25,
@@ -824,17 +824,17 @@ Slider.prototype = {
         line(this.x, this.y2, this.thumb.x, this.y2);
         this.drawShadow([this.thumb.x - this.r + 3, this.thumb.y - this.r + 3, this.r * 2 - 5, this.r * 2 - 3.5]);
         strokeWeight(config.strokeWeight / 1.5);
-        stroke(!this.disabled ? lerpColor(color(255), color(0), 0.1) : config.fill.outline);
-        fill(lerpColor(this.fill, color(0), this.transition / 50));
+        stroke(!this.disabled ? lerpColor(color(colors.white), color(colors.black), 0.1) : config.fill.outline);
+        fill(lerpColor(this.fill, color(colors.black), this.transition / 50));
         ellipseMode(CENTER);
         (this.shape)(this.thumb.x, this.thumb.y, this.r * 2 * (this.transition / 10 + 1), this.r * 2 * (this.transition / 10 + 1));
         this.animate();
-        fill(this.disabled ? config.fill.disabled : color(0));
+        fill(this.disabled ? config.fill.disabled : color(colors.black));
         textAlign(LEFT, BOTTOM);
         textFont(config.font);
         text(this.label, this.x, this.y);
         if(this.label && !this.disabled) {
-            fill(100);
+            fill(colors.lightgrey);
             textAlign(RIGHT, BOTTOM);
             //this.textbox.draw();
             text(this.precise ? this.value.toFixed(1) : round(this.value), this.x3, this.y);
@@ -893,8 +893,8 @@ Slider.prototype = {
     }
 };
 inherit(Slider, Element);
-//}
-//Radiolist {
+// }
+// Radiolist {
 var radioOptions;
 var Radiolist = function(params) {
     this.init = function() {
@@ -970,8 +970,8 @@ Radiolist.prototype = {
     }
 };
 inherit(Radiolist, Element);
-//}
-//Checklist {
+// }
+// Checklist {
 var checkBoxOptions;
 var Checklist = function(params) {
     this.init = function() {
@@ -1018,8 +1018,8 @@ Checklist.prototype = {
     }
 };
 inherit(Checklist, Element);
-//}
-//Pane {
+// }
+// Pane {
 var Pane = function(params) {
     this.init = function() {
         params.shape = rect;
@@ -1047,8 +1047,8 @@ Pane.prototype = {
     }
 };
 inherit(Pane, Element);
-//}
-//ToggleButton {
+// }
+// ToggleButton {
 var ToggleButton = function(params) {
     this.init = function() {
         params.label = this.label || params.label || "";
@@ -1072,9 +1072,9 @@ ToggleButton.prototype = {
         pushStyle();
         rectMode(LEFT);
         noStroke();
-        fill(this.toggled ? this.fill : lerpColor(color(0, 0, 0, 1), color(0, 0, 0, 75), this.transition / 5));
+        fill(this.toggled ? this.fill : lerpColor(color(colors.black, 1), color(colors.black, 75), this.transition / 5));
         (this.shape)(this.x, this.y, this.w, this.h, 50);
-        fill(this.toggled ? color(255) : color(0));
+        fill(this.toggled ? color(colors.white) : color(colors.black));
         textAlign(LEFT, CENTER);
         textFont(config.font);
         textSize(13.5);
@@ -1084,8 +1084,8 @@ ToggleButton.prototype = {
     }
 };
 inherit(ToggleButton, Element);
-//}
-//Dropdown {
+// }
+// Dropdown {
 var dropOptions;
 var Dropdown = function(params) {
     this.init = function() {
@@ -1134,21 +1134,21 @@ Dropdown.prototype = {
         this.drawShadow([this.x + 1.5, this.y + 3, this.w - 4, this.h + lerp(0, this.h * this.optionsLength, constrain(this.transition2 * 2, 0, 1)) - 3, 5]);
         strokeWeight(config.strokeWeight);
         stroke(config.fill.outline);
-        fill(255);
+        fill(colors.white);
         rect(this.x, this.y, this.w, this.h + lerp(0, this.h * this.optionsLength, constrain(this.transition2 * 2, 0, 1)), 5);
         noStroke();
-        fill(lerpColor(lerpColor(this.fill, color(255), this.transition / 10), color(255), this.transition2));
+        fill(lerpColor(lerpColor(this.fill, color(colors.white), this.transition / 10), color(colors.white), this.transition2));
         rect(this.x3 - 8, this.y + 1, 8, this.h - 1, this.r);
         rect(this.x3 - 25, this.y + 1, 20, this.h - 1);
         this.drawGradient();
         strokeWeight(config.symbolWeight);
-        stroke(lerpColor(color(255), config.fill.disabled, this.transition2));
+        stroke(lerpColor(color(colors.white), config.fill.disabled, this.transition2));
         pushMatrix();
         translate(this.x3 - 12.5, this.y2);
         rotate(lerp(0, 180, this.transition2));
         symbols.arrow(0, 0);
         popMatrix();
-        fill((this.label === undefined) ? config.fill.disabled : color(0));
+        fill((this.label === undefined) ? config.fill.disabled : color(colors.black));
         textFont(config.font);
         textSize(15);
         textAlign(LEFT, CENTER);
@@ -1235,8 +1235,8 @@ Dropdown.prototype = {
     }
 };
 inherit(Dropdown, Element);
-//}
-//}
+// }
+// }
 // Icon object {
     var Icon = function (name, sprite) {
         /*
@@ -1259,12 +1259,8 @@ inherit(Dropdown, Element);
         this.sprite = sprite;
         this.load = function() {
             (background)(0, 0);
-            try {
-                this.sprite();
-            } catch(error) {
-                // Prints out error if `this.sprite` is not a function
-                println(error);
-            }
+            // No error check is needed for `load` since it is already done in the `boot` function
+            this.sprite();
             this.icon = get(0, 0, width, height);
         };
         this.draw = function(x, y) {
@@ -1275,34 +1271,15 @@ inherit(Dropdown, Element);
             }
         };
     };
-//}
+// }
 // Icons {
-// Test image
-var testIcon = new Icon("Weather", function() {
-    noStroke();
-    pushMatrix();
-    translate(200,200);
-    scale(1);
-    fill(74, 183, 255);
-    noStroke();
-    ellipse(0,0,30,30);
-    fill(255, 238, 0);
-    ellipse(-4,-3,18,18);
-    stroke(74, 183, 255);
-    fill(255, 255, 255);
-    ellipse(2,4,20,10);
-    noStroke();
-    fill(255, 255, 255);
-    stroke(74, 183, 255);
-    arc(0,0,10,10,-188,0);
-    noStroke();
-    fill(255, 255, 255);
-    ellipse(8,2,10,10);
-    ellipse(-3,3.2,6,6);
-    popMatrix();
+// Test icon
+var testIcon = new Icon("Test", function() {
+    fill(colors.theme);
+    ellipse(200, 200, 200, 200);
 });
 system.icons = [testIcon];
-//}
+// }
 // App object {
 var App = function(name, load, draw) {
     /*
@@ -1322,32 +1299,55 @@ var App = function(name, load, draw) {
         
     */
     this.name = name;
+    // No error check is needed for the `load` method since it is already done in the `boot` function
     this.load = load;
+    // No error check is needed for the `draw` method since it is already done in the `draw` function
     this.draw = draw;
 };
-//}
+// }
 // Apps {
-/** TODO: add multiple input forms */
+// Welcome app {
 var welcome = new App("Welcome", function() {
+    this.usernameError = false;
     this.usernameBox = new Textbox({
         placeholder: "Username",
         x: (width / 2) - config.textbox.w / 2,
-        y: 250
+        y: 220,
+        text: system.username
     });
     this.passwordBox = new Textbox({
         placeholder: "Password",
         x: (width / 2) - config.textbox.w / 2,
-        y: 290
+        y: 260
     });
-    this.elements = [this.usernameBox, this.passwordBox];
+    this.submitButton = new SymbolButton({
+        symbol: symbols.checkmark,
+        x: (width / 2) - config.symbolbutton.r / 2,
+        y: 400,
+        action: function() {
+            if(/\S/.test(welcome.usernameBox.text)) {
+                system.username = welcome.usernameBox.text;
+                system.password = welcome.passwordBox.text;
+                system.scene = "desktop";
+            } else {
+                welcome.usernameError = true;
+            }
+        }
+    });
+    this.elements = [this.usernameBox, this.passwordBox, this.submitButton];
 }, function() {
     this.elements.forEach(function(element) {
         element.draw();
     });
     fill(colors.black);
     textAlign(CENTER);
-    text("Welcome to Eclipse OS", width/2, 200);
-    
+    textSize(20);
+    text("Welcome to Eclipse OS", width / 2, 150);
+    if(this.usernameError) {
+        fill(colors.red);
+        textSize(15);
+        text("Invalid username", width / 2, 350);
+    }
     // Event handling for textbox
     if(Mouse.pressed) {
         this.elements.forEach(function(element) {
@@ -1365,8 +1365,17 @@ var welcome = new App("Welcome", function() {
         });
     }
 });
-system.apps = [welcome];
-//}
+// }
+// Desktop app {
+var desktop = new App("Desktop", function() {
+    
+}, function() {
+    background(255);
+    text("TODO", width / 2, height / 2);
+});
+// }
+system.apps = [welcome, desktop];
+// }
 // Boot {
 var loading = {
     // Which asset is being loading in the `assets` array
@@ -1447,19 +1456,29 @@ var boot = function() {
         system.scene = "login";
     }
 };
-//}
+// }
 // Drawing {
 var draw = function() {
     background(colors.white);
-    if(system.scene === "boot") {
-        boot();
-    } else {
-        // Update the time in the `system` object every frame, should be at beginning of the `draw` loop
-        system.time.update();
-        
-        // Draw icon and app
-        welcome.draw();
+    try {
+        switch(system.scene) {
+            case "boot":
+                boot();
+                break;
+            case "login":
+                welcome.draw();
+                break;
+            case "desktop":
+                desktop.draw();
+                break;
+            default:
+                println("Unknown scene \"" + system.scene + "\".");
+        }
+    } catch(error) {
+        println(error);   
     }
+    // Update the time in the `system` object every frame, should be at beginning of the `draw` loop
+    system.time.update();
     /* 
         Set the `released` value of `Mouse` to `false` so `released` is only true for one frame after         Mouse is released || `key.pressed` is set to `false` for the same reason as `Mouse.released`.
         these must be placed at the very bottom of the draw
@@ -1467,4 +1486,4 @@ var draw = function() {
     Mouse.released = false;
     Key.pressed = false;
 };
-//}
+// }
