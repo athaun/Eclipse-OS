@@ -1372,7 +1372,8 @@ var loading = {
     // Which asset is being loading in the `assets` array
     index: 0,
     // Loading progress, 0 to 100
-    progress: 0
+    progress: 0,
+    complete: false
 };
 var boot = function() {
     // Animation is based on frame count, won't replay when program is editted
@@ -1381,19 +1382,16 @@ var boot = function() {
     if(developerMode) {
         animation = 360;
     }
-    // Load assets if animation is complete
-    if(animation === 360) {
-        // Merge `system.icons` and `system.apps`
-        var assets = system.icons.concat(system.apps);
-        if(loading.index < assets.length) {
-            try {
-                assets[loading.index].load();
-            } catch(error) {
-                println(error);
-            }
-            loading.index++;
-            loading.progress = constrain(map(loading.index, 0, assets.length, 0, 100), 0, 100);
+    // Merge `system.icons` and `system.apps`
+    var assets = system.icons.concat(system.apps);
+    if(loading.index < assets.length) {
+        try {
+            assets[loading.index].load();
+        } catch(error) {
+            println(error);
         }
+        loading.index++;
+        loading.progress = constrain(map(loading.index, 0, assets.length, 0, 100), 0, 100);
     }
     // Boot animation
     background(colors.black);
@@ -1403,7 +1401,7 @@ var boot = function() {
     // Make it appear as if the sun is moving around
     translate(map(sin(animation), -1, 1, -100, 100), map(sin(animation), -1, 1, -25, 25));
     noStroke();
-    fill(colors.yellow);
+    fill(lerpColor(color(colors.yellow, 0), colors.yellow, constrain(animation / 100, 0, 1)));
     // Sun
     ellipse(width / 2, height / 2.5, animation / 1.5, animation / 1.5);
     fill(colors.black);
@@ -1430,9 +1428,11 @@ var boot = function() {
         }
         // Ellipse drawn over eclipse, with no fill. Used to show glow as stroke
         ellipse(width / 2, height / 2.5, animation / 1.5, animation / 1.5);
-        // Loading spinner
-        strokeWeight(constrain(map(frameCount, 380, 400, 0, 2.5), 0, 2.5));
-        arc(width / 2, 425, 25, 25, 0 + frameCount * 8, 75 + sin(frameCount * 5) * 75 + frameCount * 8);
+        if(!loading.complete) {
+            // Loading spinner
+            strokeWeight(constrain(map(frameCount, 380, 400, 0, 2.5), 0, 2.5));
+            arc(width / 2, 425, 25, 25, 0 + frameCount * 8, 75 + sin(frameCount * 5) * 75 + frameCount * 8);
+        }
         // Show percentage if frame count is greater than 400 or developer mode
         if((frameCount > 400 && loading.progress < 100) || developerMode) {
             fill(colors.white);
@@ -1441,8 +1441,9 @@ var boot = function() {
         }
     }
     popMatrix();
-    // CHange scenes after animation and loading is complete or developer mode 
+    // Change scenes after animation and loading is complete or developer mode 
     if((frameCount > 500 || developerMode) && loading.progress === 100) {
+        loading.complete = true;
         system.scene = "login";
     }
 };
