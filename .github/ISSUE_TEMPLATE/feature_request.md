@@ -1,7 +1,7 @@
 ---
 name: Feature request
 about: Suggest an idea for Eclipse OS
-title: "[Request] Title"
+title: "[Feature Name] Title"
 labels: enhancement
 assignees: ''
 
