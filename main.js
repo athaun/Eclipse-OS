@@ -1,7 +1,7 @@
 /**
  *
  * Eclipse Operating System
- * version 4.2.2
+ * version 4.2.3
  *
  * Copyright 2019
  * Eclipse Development Team
@@ -12,11 +12,17 @@
  
 // Speeds things up for easier testing
 var developerMode = false;
+
+// Program {
+// Since not everything is supported on all canvas sizes we have a canvas size check
+if(width !== 600 && height !== 500) {
+    println("Eclipse OS might not display correctly with your canvas size. Consider switching to a 600 by 500 canvas for optimal results.");
+}
 // Used for some browsers to force them to render smoothly, without this, it is very pixelated
 smooth();
 // To keep frame rate uniformed, i.e. animation won't be too fast
 frameRate(60);
-
+// }
 // System {
 /*
 Colors object to be used whenever using background, fill or stroke. This is to make it easier to change the colors without hacing to go through the code and change every instance of the particular color.
@@ -161,6 +167,11 @@ config.tooltip = {
     arrowHeight: 3,
     padding: 10
 };
+config.flatbutton = {
+	w: 50,
+	h: 50,
+	fill: color(colors.black, 1)
+};
 config.button = {
     w: 75,
     h: 30,
@@ -256,7 +267,7 @@ var symbols = {
     }
 };
 // }
-// Special Functions {
+// Element {
 var Element = function(params) {
     this.x = params.x;
     this.y = params.y;
@@ -427,6 +438,50 @@ Tooltip.prototype = {
     }
 };
 inherit(Tooltip, Element);
+// }
+// Flat Button {
+var FlatButton = function(params) {
+    this.init = function() {
+        params.label = this.label || params.label || "";
+        params.shape = params.shape || rect;
+        params.x = this.x || params.x || 0;
+        params.y = this.y || params.y || 0;
+        textFont(config.font);
+        params.w = params.w || params.r * 2 || config.flatbutton.w;
+        params.h = params.h || params.r * 2 || config.flatbutton.h;
+        params.action = params.action || noop;
+        Element.call(this, params);
+        this.disabled = this.disabled || params.disabled;
+        this.fill = this.disabled ? config.fill.disabled : (this.fill || params.fill || config.flatbutton.fill);
+        this.tooltip = new Tooltip({
+            label: this.label,
+            x: this.x2,
+            y: constrain(this.y3 + 2, 0, height)
+        });
+        this.toggle = params.toggle || false;
+    };
+    this.init();
+};
+FlatButton.prototype = {
+    draw: function() {
+        pushStyle();
+        ellipseMode(CORNER);
+        rectMode(LEFT);
+        noStroke();
+        fill(lerpColor(this.fill, colors.black, this.transition / 10));
+        (this.shape)(this.x, this.y, this.w, this.h);
+        if (this.toggle && this.toggled) {
+			fill(lerpColor(this.fill, colors.black, 0.1));
+			(this.shape)(this.x, this.y, this.w, this.h);	
+        }
+        this.animate();
+        if (this.mouseOver() && this.label !== "") {
+            this.tooltip.draw();   
+        }
+        popStyle();
+    }
+};
+inherit(FlatButton, Element); 
 // }
 // Button {
 var Button = function(params) {
@@ -1273,12 +1328,82 @@ inherit(Dropdown, Element);
     };
 // }
 // Icons {
-// Test icon
-var testIcon = new Icon("Test", function() {
-    fill(colors.theme);
-    ellipse(200, 200, 200, 200);
+var eclipseLogo = new Icon("Eclipse Logo", function() {
+    noStroke();
+    fill(colors.yellow);
+    ellipseMode(CORNER);
+    ellipse(0, 0, 25, 25);
+    fill(colors.black);
+    arc(6, 0, 13, 25, 90, 270);
+    arc(-1, 0, 26, 25, 270, 450);
+    ellipseMode(CENTER);
 });
-system.icons = [testIcon];
+var materialBackground1 = new Icon("Material Background 1", function() {
+    noStroke();
+    fill(colors.theme);
+    triangle(0, 0, 301, 100, 200, 300);
+    fill(lerpColor(colors.theme, colors.black, 0.3));
+    triangle(566, 0, 300, 100, 200, 299);
+    fill(lerpColor(colors.theme, colors.black, 0.2));
+    triangle(572, 0, 0, 0, 299, 101);
+    fill(lerpColor(colors.theme, colors.black, 0.1));
+    triangle(0, 0, 0, 600, 201, 299);
+    fill(lerpColor(colors.yellow, colors.red, 0.2));
+    triangle(925, 601, -2, 600, 200, 299);
+    fill(lerpColor(colors.yellow, colors.red, 0.3));
+    triangle(1424, 601, 441, 600, 200, 299);
+    fill(lerpColor(colors.yellow, colors.red, 0.4));
+    triangle(925, 600, 600, 451, 200, 299);
+    fill(lerpColor(colors.yellow, colors.red, 0.3));
+    triangle(607, 887, 600, 451, 200, 299);
+    fill(colors.yellow);
+    triangle(60, 600, 40, 451, 200, 299);
+    fill(lerpColor(colors.yellow, colors.red, 0.4));
+    triangle(65, 600, 217, 500, 200, 299);
+    fill(colors.theme);
+    triangle(564, 0, 600, 0, 300, 299);
+    fill(lerpColor(colors.theme, colors.black, 0.1));
+    triangle(561, 4, 197, 300, 300, 302);
+    fill(lerpColor(colors.theme, colors.black, 0.2));
+    triangle(610, 401, 197, 299, 300, 300);
+    fill(lerpColor(colors.theme, colors.white, 0.2));
+    triangle(600, 0, 492, 363, 295, 299);
+    fill(lerpColor(colors.theme, colors.black, 0.3));
+    triangle(600, 0, 491, 364, 602, 399);
+});
+var materialBackground2 = new Icon("Material Background 2", function() {
+    background(colors.theme);
+	for (var i = 1; i < 16; i++) {
+		strokeWeight(1.1 * i);
+		stroke(colors.black, 7.5);
+		triangle(0, -70, 300, 0, 250, 125);
+		triangle(0, -100, 325, 195, 0, 425);
+	}
+	noStroke();
+	fill(colors.yellow);
+	triangle(0, -100, 325, 195, 0, 425);
+	triangle(0, -70, 300, 0, 250, 126);
+	for (var i = 1; i < 16; i++) {
+		//strokeCap(SQUARE);
+		stroke(colors.black, 25);
+		strokeWeight(4 * i);
+		line(750, -10, 250, 425);
+		stroke(194, 0, 0, 50);
+		strokeWeight(50);
+		stroke(120, 0, 0);
+		line(750, -10, 250, 425);
+		strokeWeight(1.1 * i);
+		stroke(colors.black, 50);
+		line(750, -10, 250, 425);
+		strokeWeight(10);
+		stroke(colors.yellow);
+		line(750, -10, 250, 425);
+		stroke(colors.black, 1.5);
+		strokeWeight(0.3 * i);
+		line(90, -3, 330, 195);
+	}
+});
+system.icons = [eclipseLogo, materialBackground1, materialBackground2];
 // }
 // App object {
 var App = function(name, load, draw) {
@@ -1336,6 +1461,10 @@ var welcome = new App("Welcome", function() {
     });
     this.elements = [this.usernameBox, this.passwordBox, this.submitButton];
 }, function() {
+    if(developerMode) {
+        system.username = "Developer";
+        system.scene = "desktop";
+    }
     this.elements.forEach(function(element) {
         element.draw();
     });
@@ -1366,15 +1495,46 @@ var welcome = new App("Welcome", function() {
     }
 });
 // }
-// Desktop app {
-var desktop = new App("Desktop", function() {
-    
+// Taskbar app {
+var taskbar = new App("Taskbar", function() {
+    this.taskbarHeight = 30;
+    this.startButton = new FlatButton({
+        x: 0,
+        y: height - 30,
+        w: 35,
+        h: 30
+    });
+    this.elements = [this.startButton];
 }, function() {
-    background(255);
-    text("TODO", width / 2, height / 2);
+    noStroke();
+    fill(colors.darkgrey, 200);
+    blur(0, height - this.taskbarHeight, width, this.taskbarHeight, 30);
+    rect(0, height - this.taskbarHeight, width, this.taskbarHeight);
+    eclipseLogo.draw(5, 472.5);
+    this.elements.forEach(function(element) {
+        element.draw();
+    });
+    if(Mouse.pressed) {
+        this.elements.forEach(function(element) {
+            element.onmousepress();
+        });
+    }
+    if(Mouse.released) {
+        this.elements.forEach(function(element) {
+            element.onmouserelease();
+        });
+    }
 });
 // }
-system.apps = [welcome, desktop];
+// Desktop app {
+var desktop = new App("Desktop", function() {
+    this.background = materialBackground1;
+}, function() {
+    background(colors.black);
+    this.background.draw();
+});
+// }
+system.apps = [welcome, taskbar, desktop];
 // }
 // Boot {
 var loading = {
@@ -1395,7 +1555,11 @@ var boot = function() {
     var assets = system.icons.concat(system.apps);
     if(loading.index < assets.length) {
         try {
+            pushMatrix();
+            pushStyle();
             assets[loading.index].load();
+            popStyle();
+            popMatrix();
         } catch(error) {
             println(error);
         }
@@ -1470,6 +1634,7 @@ var draw = function() {
                 break;
             case "desktop":
                 desktop.draw();
+                taskbar.draw();
                 break;
             default:
                 println("Unknown scene \"" + system.scene + "\".");
