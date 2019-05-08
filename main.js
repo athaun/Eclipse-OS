@@ -1,7 +1,7 @@
 /**
  *
  * Eclipse Operating System
- * version 4.2.2
+ * version 4.2.3
  *
  * Copyright 2019
  * Eclipse Development Team
@@ -11,12 +11,18 @@
  **/
  
 // Speeds things up for easier testing
-var developerMode = false;
+var developerMode = true;
+
+// Program {
+// Since not everything is supported on all canvas sizes we have a canvas size check
+if(width !== 600 && height !== 500) {
+    println("Eclipse OS might not display correctly with your canvas size. Consider switching to a 600 by 500 canvas for optimal results.");
+}
 // Used for some browsers to force them to render smoothly, without this, it is very pixelated
 smooth();
 // To keep frame rate uniformed, i.e. animation won't be too fast
 frameRate(60);
-
+// }
 // System {
 /*
 Colors object to be used whenever using background, fill or stroke. This is to make it easier to change the colors without hacing to go through the code and change every instance of the particular color.
@@ -43,6 +49,7 @@ var system = {
     // Only one user can be created as of now
     username: "Guest",
     password: "",
+    font: "sans",
     // Time object to be used whenever displaying or printing time
     time: {
         // Set to null so it is easier to find out if they have not been updated
@@ -133,7 +140,7 @@ keyPressed = function() {
 var config = {
     audioFeedback: null,
     animationStep: 0.2,
-    font: createFont("sans-serif", 16),
+    font: createFont(system.font, 16),
     strokeWeight: 1,
     symbolWeight: 3,
     fill: {
@@ -160,6 +167,12 @@ config.tooltip = {
     r: 50,
     arrowHeight: 3,
     padding: 10
+};
+config.flatbutton = {
+	w: 50,
+	h: 50,
+	fill: color(colors.black, 1),
+	padding: 0
 };
 config.button = {
     w: 75,
@@ -256,7 +269,7 @@ var symbols = {
     }
 };
 // }
-// Special Functions {
+// Element {
 var Element = function(params) {
     this.x = params.x;
     this.y = params.y;
@@ -428,6 +441,56 @@ Tooltip.prototype = {
 };
 inherit(Tooltip, Element);
 // }
+// Flat Button {
+var FlatButton = function(params) {
+    this.init = function() {
+        params.label = this.label || params.label || "";
+        params.shape = params.shape || rect;
+        params.x = this.x || params.x || 0;
+        params.y = this.y || params.y || 0;
+        textFont(config.font);
+        params.w = params.w || params.r * 2 || config.flatbutton.w;
+        params.h = params.h || params.r * 2 || config.flatbutton.h;
+        params.r = params.shape === ellipse ? config.flatbutton.w / 2: null;
+        params.action = params.action || noop;
+        Element.call(this, params);
+        this.disabled = this.disabled || params.disabled;
+        this.fill = this.disabled ? config.fill.disabled : (this.fill || params.fill || config.flatbutton.fill);
+        this.tooltip = new Tooltip({
+            label: this.label,
+            x: this.x2,
+            y: constrain(this.y3 + 2, 0, height)
+        });
+        this.toggle = params.toggle || false;
+        this.image = params.image || null;
+        this.padding = params.padding || config.flatbutton.padding;
+    };
+    this.init();
+};
+FlatButton.prototype = {
+    draw: function() {
+        pushStyle();
+        if(this.image) {
+			this.image.draw(this.x + this.padding, this.y + this.padding);
+        }
+        ellipseMode(CORNER);
+        rectMode(LEFT);
+        noStroke();
+        fill(lerpColor(this.fill, colors.black, this.transition / 10));
+        (this.shape)(this.x, this.y, this.w, this.h);
+        if (this.toggle && this.toggled) {
+			fill(lerpColor(this.fill, colors.black, 0.1));
+			(this.shape)(this.x, this.y, this.w, this.h);	
+        }
+        this.animate();
+        if (this.mouseOver() && this.label !== "") {
+            this.tooltip.draw();   
+        }
+        popStyle();
+    }
+};
+inherit(FlatButton, Element); 
+// }
 // Button {
 var Button = function(params) {
     this.init = function() {
@@ -541,7 +604,7 @@ var Textbox = function(params) {
         this.placeholder = params.placeholder || config.textbox.placeholder;
         this.caret = 0;
         this.max = params.max || config.textbox.max;
-        this.obfusticated = params.obfusticate || false;
+        this.obfuscated = params.obfuscate || false;
         this.fill = this.disabled ? config.fill.disabled : (this.fill || params.fill || config.fill.accent);
     };
     this.init();
@@ -568,9 +631,9 @@ Textbox.prototype = {
                     break;
                 }
             }
-            this.label = this.obfusticated ? config.textbox.obfuscation.repeat(this.text.length).substring(this.text.length - n) : this.text.substring(this.text.length - n);
+            this.label = this.obfuscated ? config.textbox.obfuscation.repeat(this.text.length).substring(this.text.length - n) : this.text.substring(this.text.length - n);
         } else {
-            this.label = this.obfusticated ? config.textbox.obfuscation.repeat(this.text.length) : this.text;
+            this.label = this.obfuscated ? config.textbox.obfuscation.repeat(this.text.length) : this.text;
         }
         fill(this.label === "" ? config.fill.disabled : 0);
         textAlign(LEFT, CENTER);
@@ -1251,7 +1314,7 @@ inherit(Dropdown, Element);
             });
             // Icon loads in boot
             draw = function() {
-                icon.draw();
+                icon.draw(x, y);
             };
             
         */
@@ -1273,12 +1336,106 @@ inherit(Dropdown, Element);
     };
 // }
 // Icons {
-// Test icon
-var testIcon = new Icon("Test", function() {
-    fill(colors.theme);
-    ellipse(200, 200, 200, 200);
+var placeholderIcon = new Icon("Placeholder", function() {
+    noStroke();
+    fill(colors.lightgrey);
+    ellipseMode(CORNER);
+    ellipse(0, 0, 45, 45);
+    stroke(colors.grey);
+    strokeWeight(1);
+    noFill();
+    line(22.5, 0, 22.5, 44);
+    line(0, 22.5, 44, 22.5);
+    ellipseMode(CENTER);
+    ellipse(23, 23, 30, 30);
 });
-system.icons = [testIcon];
+var eclipseLogo = new Icon("Eclipse Logo", function() {
+    scale(1.25);
+    noStroke();
+    fill(colors.yellow);
+    ellipseMode(CORNER);
+    ellipse(0, 0, 25, 25);
+    fill(colors.black);
+    arc(6, 0, 13, 25, 90, 270);
+    arc(-1, 0, 26, 25, 270, 450);
+    ellipseMode(CENTER);
+});
+var materialBackground1 = new Icon("Material Background 1", function() {
+    noStroke();
+    fill(colors.theme);
+    triangle(0, 0, 301, 100, 200, 300);
+    fill(lerpColor(colors.theme, colors.black, 0.3));
+    triangle(566, 0, 300, 100, 200, 299);
+    fill(lerpColor(colors.theme, colors.black, 0.2));
+    triangle(572, 0, 0, 0, 299, 101);
+    fill(lerpColor(colors.theme, colors.black, 0.1));
+    triangle(0, 0, 0, 600, 201, 299);
+    fill(lerpColor(colors.yellow, colors.red, 0.2));
+    triangle(925, 601, -2, 600, 200, 299);
+    fill(lerpColor(colors.yellow, colors.red, 0.3));
+    triangle(1424, 601, 441, 600, 200, 299);
+    fill(lerpColor(colors.yellow, colors.red, 0.4));
+    triangle(925, 600, 600, 451, 200, 299);
+    fill(lerpColor(colors.yellow, colors.red, 0.3));
+    triangle(607, 887, 600, 451, 200, 299);
+    fill(colors.yellow);
+    triangle(60, 600, 40, 451, 200, 299);
+    fill(lerpColor(colors.yellow, colors.red, 0.4));
+    triangle(65, 600, 217, 500, 200, 299);
+    fill(colors.theme);
+    triangle(564, 0, 600, 0, 300, 299);
+    fill(lerpColor(colors.theme, colors.black, 0.1));
+    triangle(561, 4, 197, 300, 300, 302);
+    fill(lerpColor(colors.theme, colors.black, 0.2));
+    triangle(610, 401, 197, 299, 300, 300);
+    fill(lerpColor(colors.theme, colors.white, 0.2));
+    triangle(600, 0, 492, 363, 295, 299);
+    fill(lerpColor(colors.theme, colors.black, 0.3));
+    triangle(600, 0, 491, 364, 602, 399);
+});
+var materialBackground2 = new Icon("Material Background 2", function() {
+    background(colors.theme);
+	for (var i = 1; i < 16; i++) {
+		strokeWeight(1.1 * i);
+		stroke(colors.black, 7.5);
+		triangle(0, -70, 300, 0, 250, 125);
+		triangle(0, -100, 325, 195, 0, 425);
+	}
+	noStroke();
+	fill(colors.yellow);
+	triangle(0, -100, 325, 195, 0, 425);
+	triangle(0, -70, 300, 0, 250, 126);
+	for (var i = 1; i < 16; i++) {
+		//strokeCap(SQUARE);
+		stroke(colors.black, 25);
+		strokeWeight(4 * i);
+		line(750, -10, 250, 425);
+		stroke(194, 0, 0, 50);
+		strokeWeight(50);
+		stroke(120, 0, 0);
+		line(750, -10, 250, 425);
+		strokeWeight(1.1 * i);
+		stroke(colors.black, 50);
+		line(750, -10, 250, 425);
+		strokeWeight(10);
+		stroke(colors.yellow);
+		line(750, -10, 250, 425);
+		stroke(colors.black, 1.5);
+		strokeWeight(0.3 * i);
+		line(90, -3, 330, 195);
+	}
+});
+var navigationBack = new Icon("Nav. Back", function() {
+    noStroke();
+    fill(colors.darkgrey);
+    triangle(2, 7.5, 15, 0, 15, 15);
+});
+var navigationHome = new Icon("Nav. Home", function() {
+    noStroke();
+    fill(colors.darkgrey);
+    rect(0, 0, 15, 15, 2.5);
+});
+system.icons = [placeholderIcon, eclipseLogo, materialBackground1, materialBackground2, navigationBack, navigationHome];
 // }
 // App object {
 var App = function(name, load, draw) {
@@ -1318,7 +1475,8 @@ var welcome = new App("Welcome", function() {
     this.passwordBox = new Textbox({
         placeholder: "Password",
         x: (width / 2) - config.textbox.w / 2,
-        y: 260
+        y: 260,
+        obfuscate: true
     });
     this.submitButton = new SymbolButton({
         symbol: symbols.checkmark,
@@ -1336,6 +1494,10 @@ var welcome = new App("Welcome", function() {
     });
     this.elements = [this.usernameBox, this.passwordBox, this.submitButton];
 }, function() {
+    if(developerMode) {
+        system.username = "Developer";
+        system.scene = "desktop";
+    }
     this.elements.forEach(function(element) {
         element.draw();
     });
@@ -1366,15 +1528,109 @@ var welcome = new App("Welcome", function() {
     }
 });
 // }
-// Desktop app {
-var desktop = new App("Desktop", function() {
-    
+// Taskbar app {
+var taskbar = new App("Taskbar", function() {
+	this.w = 400;
+	this.minH = 60;
+	this.maxH = 90;
+	this.h = this.minH;
+	this.margin = 10;
+	this.padding = 5;
+    this.x = 100;
+    this.maxY = height - (this.h + this.margin);
+    this.minY = this.maxY - (this.maxH - this.minH);
+    this.y = this.maxY;
+    this.elements = [];
+    // For demo purposes
+	for(var i = 0; i < 7; i++) {
+	    this.elements.push(new FlatButton({
+	        shape: ellipse,
+	        x: (this.x + 25) + 50 * i,
+	        y: height - (taskbar.h + 2.5),
+	        r: 22.5,
+	        image: placeholderIcon
+	    }));
+	}
+	var backButton = new FlatButton({
+	    x: this.x + this.padding,
+	    y: this.y + this.padding,
+	    w: 20,
+	    h: 20,
+	    image: navigationBack,
+	    padding: 2
+	});
+	var homeButton = new FlatButton({
+	    x: this.x + this.padding + 20,
+	    y: this.y + this.padding,
+	    w: 20,
+	    h: 20,
+	    image: navigationHome,
+	    padding: 2
+	}); 
+    this.navigationElements = [backButton, homeButton];
+    // for(var i in this.navigationElements) {
+    //     this.navigationElements[i].x = this.x + this.padding + i * 17;   
+    //     this.navigationElements[i].init();
+    // }
+	this.mouseOver = function() {
+        return (mouseX > this.x && mouseY > this.y && mouseX < this.x + this.w && mouseY < this.y + this.h);
+	};
 }, function() {
-    background(255);
-    text("TODO", width / 2, height / 2);
+    fill(colors.darkgrey);
+    if(this.mouseOver()) {
+        this.h += (this.maxH - this.h) * 0.2;
+        this.y += (this.minY - this.y) * 0.2;
+        for(var i = 0; i < this.navigationElements.length; i++) {
+            this.navigationElements[i].y = this.y + this.padding;
+            this.navigationElements[i].draw();
+        }
+        if(Mouse.pressed) {
+            this.navigationElements.forEach(function(element) {
+                element.onmousepress();
+            });
+        }
+        if(Mouse.released) {
+            this.navigationElements.forEach(function(element) {
+                element.onmouserelease();
+            });
+        }
+        textAlign(RIGHT, CENTER);
+        textFont(system.font, 12);
+        text(system.time.formatted, this.x + this.w - this.padding * 2, this.y + (this.maxY - this.minY) / 2);
+    } else {
+        this.h += (this.minH - this.h) * 0.2;
+        this.y += (this.maxY - this.y) * 0.2;
+    }
+    this.h = constrain(this.h, this.minH, this.maxH);
+    this.y = constrain(this.y, this.minY, this.maxY);
+	noStroke();
+	blur(this.x, this.maxY, this.w, this.minH, 25);
+	fill(colors.white, 125);
+	rect(this.x, this.y, this.w, this.h, 10);
+    this.elements.forEach(function(element) {
+        element.draw();
+    });
+    if(Mouse.pressed) {
+        this.elements.forEach(function(element) {
+            element.onmousepress();
+        });
+    }
+    if(Mouse.released) {
+        this.elements.forEach(function(element) {
+            element.onmouserelease();
+        });
+    }
 });
 // }
-system.apps = [welcome, desktop];
+// Desktop app {
+var desktop = new App("Desktop", function() {
+    this.background = materialBackground1;
+}, function() {
+    background(colors.black);
+    this.background.draw();
+});
+// }
+system.apps = [welcome, taskbar, desktop];
 // }
 // Boot {
 var loading = {
@@ -1395,7 +1651,11 @@ var boot = function() {
     var assets = system.icons.concat(system.apps);
     if(loading.index < assets.length) {
         try {
+            pushMatrix();
+            pushStyle();
             assets[loading.index].load();
+            popStyle();
+            popMatrix();
         } catch(error) {
             println(error);
         }
@@ -1470,6 +1730,7 @@ var draw = function() {
                 break;
             case "desktop":
                 desktop.draw();
+                taskbar.draw();
                 break;
             default:
                 println("Unknown scene \"" + system.scene + "\".");
