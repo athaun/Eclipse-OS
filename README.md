@@ -2,7 +2,7 @@
 ![Eclipse OS Logo](https://www.khanacademy.org/computer-programming/eclipse-os-team/6701799319830528/5649050225344512.png)
 # Eclipse OS [![MIT License](https://img.shields.io/github/license/athaun/EOS.svg)](https://github.com/athaun/Eclipse-OS/blob/master/LICENSE) [![Last Commit](https://img.shields.io/github/last-commit/athaun/EOS.svg)](https://github.com/athaun/Eclipse-OS/commits/master) [![Discord Server](https://img.shields.io/discord/501497748294467585.svg)](https://discord.gg/JD7skcm)
 
-Eclipse OS is a conceptual operating system designed and created on Khan Academy.
+Eclipse OS is a conceptual operating system designed and created on Khan Academy using Processing.js.
 
 ## About
 Our goal is to create a lightweight, fast simulation OS on Khan Academy using Processing.js with clean source code! Our largest feature is Vocal, an assistant that will help you throughout your day. She can open apps, have a chat, or set a calendar date! 
