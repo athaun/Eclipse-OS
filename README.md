@@ -16,7 +16,7 @@ Eclipse OS is made available under the [MIT License](https://github.com/athaun/E
 
 ## Links
 * [Website](http://bit.ly/2JGoP4f)
-* [Eclipse discord](https://discord.gg/etFN8K4)
+* [Discord Server](https://discord.gg/etFN8K4)
 * [Eclipse OS subscription page](bit.ly/subscribetoEOS)
 * [Vocal w/ voice synthesis and recognition](https://vocal.netlify.com/)
 
