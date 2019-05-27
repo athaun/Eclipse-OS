@@ -1430,12 +1430,20 @@ var navigationBack = new Icon("Nav. Back", function() {
     fill(colors.darkgrey);
     triangle(2, 7.5, 15, 0, 15, 15);
 });
-var navigationHome = new Icon("Nav. Home", function() {
+var navigationHomeIcon = new Icon("Nav. Home", function() {
     noStroke();
     fill(colors.darkgrey);
     rect(0, 0, 15, 15, 2.5);
 });
-system.icons = [placeholderIcon, eclipseLogo, materialBackground1, materialBackground2, navigationBack, navigationHome];
+var dockExpandIcon = new Icon("Dock Expand", function() {
+    var weight = 5;
+    translate(weight / 2, weight / 2);
+    stroke(colors.darkgrey);
+    strokeWeight(weight);
+    line(0, 10, 12, 0);
+    line(12, 0, 24, 10); 
+});
+system.icons = [placeholderIcon, eclipseLogo, materialBackground1, materialBackground2, navigationBack, navigationHomeIcon, dockExpandIcon];
 // }
 // App object {
 var App = function(name, load, draw) {
@@ -1528,6 +1536,72 @@ var welcome = new App("Welcome", function() {
     }
 });
 // }
+// App Drawer app {
+var appDrawer = new App("App Drawer", function() {
+    this.transition = 0;
+    this.transparency = 100;
+    this.blur = 5;
+    this.shown = false;
+    this.show = function() {
+        appDrawer.shown = true;
+    };
+    this.hide = function() {
+        appDrawer.shown = false;
+    };
+    this.elements = [];
+    
+    // For demo purposes
+    for(var i = 0; i < 4; i++) {
+        this.elements.push([]);
+        for(var j = 0; j < 5; j++) {
+            this.elements[i].push(new FlatButton({
+                shape: ellipse,
+                x: 100 + (445 / 5) * j,
+                y: 100 + (350 / 5) * i,
+                image: placeholderIcon
+            }));
+        }
+    }
+}, function() {
+    if(this.shown) {
+        translate(map(this.transition, 0, 1, 0, this.blur), map(this.transition, 0, 1, 0, this.blur));
+        filter(BLUR, map(this.transition, 0, 1, 0, this.blur));
+        noStroke();
+        fill(0, map(this.transition, 0, 1, 0, this.transparency));
+        rect(0, 0, width, height);
+        for(var i = 0; i < this.elements.length; i++) {
+            for(var j = 0; j < this.elements[i].length; j++) {
+                this.elements[i][j].draw();
+            }
+        }
+        if(Mouse.pressed) {
+            for(var i = 0; i < this.elements.length; i++) {
+                for(var j = 0; j < this.elements[i].length; j++) {
+                    this.elements[i][j].onmousepress();
+                }
+            }
+        }
+        if(Mouse.released) {
+            if(this.transition > 0.99) {
+                appDrawer.hide();
+            }
+            for(var i = 0; i < this.elements.length; i++) {
+                for(var j = 0; j < this.elements[i].length; j++) {
+                    this.elements[i][j].onmouserelease();
+                }
+            }
+        }
+        this.transition += (1 - this.transition) * 0.5;
+    } else if(this.transition > 0.05) {
+        this.transition += (-this.transition) * 0.5;
+        translate(map(this.transition, 0, 1, 0, this.blur), map(this.transition, 0, 1, 0, this.blur));
+        filter(BLUR, map(this.transition, 0, 1, 0, this.blur));
+        noStroke();
+        fill(0, map(this.transition, 0, 1, 0, this.transparency));
+        rect(0, 0, width, height);
+    }
+});
+// }
 // Taskbar app {
 var taskbar = new App("Taskbar", function() {
 	this.w = 400;
@@ -1545,7 +1619,7 @@ var taskbar = new App("Taskbar", function() {
 	for(var i = 0; i < 7; i++) {
 	    this.elements.push(new FlatButton({
 	        shape: ellipse,
-	        x: (this.x + 25) + 50 * i,
+	        x: (this.x + 27.5) + 50 * i,
 	        y: height - (taskbar.h + 2.5),
 	        r: 22.5,
 	        image: placeholderIcon
@@ -1564,10 +1638,21 @@ var taskbar = new App("Taskbar", function() {
 	    y: this.y + this.padding,
 	    w: 20,
 	    h: 20,
-	    image: navigationHome,
+	    image: navigationHomeIcon,
 	    padding: 2
-	}); 
-    this.navigationElements = [backButton, homeButton];
+	});
+	var expandButton = new FlatButton({
+	    x: this.x + this.w / 2 - 16,
+	    y: this.y + this.padding,
+	    w: 32,
+	    h: 20,
+	    image: dockExpandIcon,
+	    padding: 2,
+	    action: function() {
+            appDrawer.show();
+	    }
+	});
+    this.navigationElements = [backButton, homeButton, expandButton];
     // for(var i in this.navigationElements) {
     //     this.navigationElements[i].x = this.x + this.padding + i * 17;   
     //     this.navigationElements[i].init();
@@ -1620,6 +1705,7 @@ var taskbar = new App("Taskbar", function() {
             element.onmouserelease();
         });
     }
+    appDrawer.draw();
 });
 // }
 // Desktop app {
@@ -1630,7 +1716,7 @@ var desktop = new App("Desktop", function() {
     this.background.draw();
 });
 // }
-system.apps = [welcome, taskbar, desktop];
+system.apps = [welcome, appDrawer, taskbar, desktop];
 // }
 // Boot {
 var loading = {
