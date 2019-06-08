@@ -134,7 +134,7 @@ keyPressed = function() {
 };
 // }
 // GUI {
-// See https://github.com/athaun/Eclipse-OS/wiki/GUI-Elements
+// See https://github.com/bhavjitChauhan/Simple-Elements/releases/tag/v2.0
 
 // Config {
 var config = {
