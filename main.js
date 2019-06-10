@@ -1539,7 +1539,7 @@ var welcome = new App("Welcome", function() {
 // App Drawer app {
 var appDrawer = new App("App Drawer", function() {
     this.transition = 0;
-    this.transparency = 100;
+    this.transparency = 150;
     this.blur = 5;
     this.shown = false;
     this.show = function() {
@@ -1564,8 +1564,8 @@ var appDrawer = new App("App Drawer", function() {
     }
 }, function() {
     if(this.shown) {
-        translate(map(this.transition, 0, 1, 0, this.blur), map(this.transition, 0, 1, 0, this.blur));
-        filter(BLUR, map(this.transition, 0, 1, 0, this.blur));
+        // filter(BLUR, map(this.transition, 0, 1, 0, this.blur));
+        // translate(map(this.transition, 0, 1, 0, this.blur), map(this.transition, 0, 1, 0, this.blur));
         noStroke();
         fill(0, map(this.transition, 0, 1, 0, this.transparency));
         rect(0, 0, width, height);
@@ -1593,9 +1593,9 @@ var appDrawer = new App("App Drawer", function() {
         }
         this.transition += (1 - this.transition) * 0.5;
     } else if(this.transition > 0.05) {
-        this.transition += (-this.transition) * 0.5;
-        translate(map(this.transition, 0, 1, 0, this.blur), map(this.transition, 0, 1, 0, this.blur));
-        filter(BLUR, map(this.transition, 0, 1, 0, this.blur));
+        this.transition += (-this.transition) * 0.25;
+        // translate(map(this.transition, 0, 1, 0, this.blur), map(this.transition, 0, 1, 0, this.blur));
+        // filter(BLUR, map(this.transition, 0, 1, 0, this.blur));
         noStroke();
         fill(0, map(this.transition, 0, 1, 0, this.transparency));
         rect(0, 0, width, height);
