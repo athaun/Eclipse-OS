@@ -68,9 +68,11 @@ var system = {
         */
         formatted: null,
         update: function() {
+            // Update the hour, minute and second properties
             this.hour = hour();
             this.minute = minute();
             this.second = second();
+            // Add padding for minutes and hours
             if (this.minute < 10) {
                 if (this.hour > 12) {
                     this.timeStamp = "PM";
@@ -104,6 +106,16 @@ var system = {
 
 // }
 // Event Handling {
+/* 
+Mouse events object. `released` property must be set to false every frame - at the end of the draw function - so it's only true one frame after the mouse is released.
+
+Usage:
+    
+    if (Mouse.pressed) {
+        println("Mouse is pressed!");
+    }
+
+*/
 var Mouse = {
     pressed: false,
     released: false,
@@ -124,6 +136,16 @@ mouseOut = function() {
     Mouse.pressed = false;
     Mouse.dragged = false;
 };
+/*
+Key events object. `pressed` property must be set to false every frame - at the end of the draw function - so it's only true one frame after the key is pressed.
+
+Usage:
+    
+    if (Key.pressed) {
+        println("Keycode " + Key.code + " is pressed!");
+    }
+
+*/
 var Key = {
     pressed: false,
     code: null
@@ -1484,24 +1506,29 @@ var App = function(name, load, draw) {
 // Apps {
 // Welcome app {
 var welcome = new App("Welcome", function() {
+    // Will be set to true is username is blank
     this.usernameError = false;
     this.usernameBox = new Textbox({
         placeholder: "Username",
+        // Center on canvas
         x: (width / 2) - config.textbox.w / 2,
         y: 220,
         text: system.username
     });
     this.passwordBox = new Textbox({
         placeholder: "Password",
+        // Center on canvas
         x: (width / 2) - config.textbox.w / 2,
         y: 260,
         obfuscate: true
     });
     this.submitButton = new SymbolButton({
         symbol: symbols.checkmark,
+        // Center on canvas
         x: (width / 2) - config.symbolbutton.r / 2,
         y: 400,
         action: function() {
+            // Confirm that username isn't all whitespace
             if(/\S/.test(welcome.usernameBox.text)) {
                 system.username = welcome.usernameBox.text;
                 system.password = welcome.passwordBox.text;
@@ -1513,6 +1540,7 @@ var welcome = new App("Welcome", function() {
     });
     this.elements = [this.usernameBox, this.passwordBox, this.submitButton];
 }, function() {
+    // Skip login process if development environment
     if(developerMode) {
         system.username = "Developer";
         system.scene = "desktop";
@@ -1549,19 +1577,28 @@ var welcome = new App("Welcome", function() {
 // }
 // Taskbar app {
 var taskbar = new App("Taskbar", function() {
+    // Width and height of taskbar normaly
     var normalW = 400;
     var normalH = 60;
+    // Height of taskbar on mouse over
     var hoverH = 80;
+    // Height of taskbar when tranformed to app drawer
     var expandW = 500;
     var expandH = 300;
+    // Minimum distance between canvas edge and tasskbar
     this.margin = 10;
+    // Minimum distance between taskbar edge and apps
     this.padding = 5;
     this.w = normalW;
     this.h = normalH;
+    /*
+    x and y-coordinates stored as seperate variables as `this.x` and `this.y` properties will change during animations
+    */
     var normalX = width / 2 - this.w / 2;
     var normalY = height - this.h - this.margin;
     this.x = normalX;
     this.y = normalY;
+    // Calculate how much the taskbar has to move up to accomodate for height increase
     var hoverY = normalY - (hoverH - normalH);
     this.elements = [];
     // For demo purposes
@@ -1607,6 +1644,7 @@ var taskbar = new App("Taskbar", function() {
     //     this.navigationElements[i].init();
     // }
     this.appDrawerElements = [];
+    // For demo purposes
     for(var i = 1; i <= 2; i++) {
         for(var j = 0; j < 7; j++) {
             this.appDrawerElements.push(new FlatButton({
@@ -1621,6 +1659,7 @@ var taskbar = new App("Taskbar", function() {
     this.mouseOver = function() {
         return (mouseX > this.x && mouseY > this.y && mouseX < this.x + this.w && mouseY < this.y + this.h);
     };
+    // For animations guide see https://github.com/athaun/Eclipse-OS/wiki/Animations-within-Applications
     this.animations = [];
     this.hovered = false;
     this.onmouseover = function() {
@@ -1682,6 +1721,7 @@ var taskbar = new App("Taskbar", function() {
         });
     };
 }, function() {
+    // For animations guide see https://github.com/athaun/Eclipse-OS/wiki/Animations-within-Applications
     for(var i = this.animations.length; i--;) {
         if (this.animations[i].call(this)){
             // Remove that animation, stopping it
@@ -1695,6 +1735,7 @@ var taskbar = new App("Taskbar", function() {
             this.onmouseout();
         }
         if (this.hovered) {
+            // Draw navigation elements when mouse is over taskbar
             for(var i = 0; i < this.navigationElements.length; i++) {
                 this.navigationElements[i].y = this.y + this.padding;
                 this.navigationElements[i].draw();
