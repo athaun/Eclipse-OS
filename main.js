@@ -1,7 +1,7 @@
 /**
  *
  * Eclipse Operating System
- * version 4.2.3
+ * version 4.2.4
  *
  * Copyright 2019
  * Eclipse Development Team
@@ -169,10 +169,10 @@ config.tooltip = {
     padding: 10
 };
 config.flatbutton = {
-	w: 50,
-	h: 50,
-	fill: color(colors.black, 1),
-	padding: 0
+    w: 50,
+    h: 50,
+    fill: color(colors.black, 1),
+    padding: 0
 };
 config.button = {
     w: 75,
@@ -224,7 +224,7 @@ String.prototype.toTitleCase = function(str) {
     });
 };
 Array.prototype.except = function(val) {
-    return this.filter(function(arr) { return arr !== val; });        
+    return this.filter(function(arr) { return arr !== val; });
 };
 var inherit = function (subClass, superClass) {
     Object.setPrototypeOf(subClass.prototype, superClass.prototype);
@@ -285,6 +285,17 @@ var Element = function(params) {
     this.y3 = this.y + this.h;
     this.r = params.r;
     this.cursor = "DEFAULT";
+    
+    this.setX = function(x) {
+        this.x = x;
+        this.x2 = this.x + this.w / 2;
+        this.x3 = this.x + this.w;
+    };
+    this.setY = function(y) {
+        this.y = y;
+        this.y2 = this.y + this.h / 2;
+        this.y3 = this.y + this.h;
+    };
     
     this.selected = false;
     this.focused = false;
@@ -471,7 +482,7 @@ FlatButton.prototype = {
     draw: function() {
         pushStyle();
         if(this.image) {
-			this.image.draw(this.x + this.padding, this.y + this.padding);
+            this.image.draw(this.x + this.padding, this.y + this.padding);
         }
         ellipseMode(CORNER);
         rectMode(LEFT);
@@ -479,8 +490,8 @@ FlatButton.prototype = {
         fill(lerpColor(this.fill, colors.black, this.transition / 10));
         (this.shape)(this.x, this.y, this.w, this.h);
         if (this.toggle && this.toggled) {
-			fill(lerpColor(this.fill, colors.black, 0.1));
-			(this.shape)(this.x, this.y, this.w, this.h);	
+            fill(lerpColor(this.fill, colors.black, 0.1));
+            (this.shape)(this.x, this.y, this.w, this.h);    
         }
         this.animate();
         if (this.mouseOver() && this.label !== "") {
@@ -1395,35 +1406,35 @@ var materialBackground1 = new Icon("Material Background 1", function() {
 });
 var materialBackground2 = new Icon("Material Background 2", function() {
     background(colors.theme);
-	for (var i = 1; i < 16; i++) {
-		strokeWeight(1.1 * i);
-		stroke(colors.black, 7.5);
-		triangle(0, -70, 300, 0, 250, 125);
-		triangle(0, -100, 325, 195, 0, 425);
-	}
-	noStroke();
-	fill(colors.yellow);
-	triangle(0, -100, 325, 195, 0, 425);
-	triangle(0, -70, 300, 0, 250, 126);
-	for (var i = 1; i < 16; i++) {
-		//strokeCap(SQUARE);
-		stroke(colors.black, 25);
-		strokeWeight(4 * i);
-		line(750, -10, 250, 425);
-		stroke(194, 0, 0, 50);
-		strokeWeight(50);
-		stroke(120, 0, 0);
-		line(750, -10, 250, 425);
-		strokeWeight(1.1 * i);
-		stroke(colors.black, 50);
-		line(750, -10, 250, 425);
-		strokeWeight(10);
-		stroke(colors.yellow);
-		line(750, -10, 250, 425);
-		stroke(colors.black, 1.5);
-		strokeWeight(0.3 * i);
-		line(90, -3, 330, 195);
-	}
+    for (var i = 1; i < 16; i++) {
+        strokeWeight(1.1 * i);
+        stroke(colors.black, 7.5);
+        triangle(0, -70, 300, 0, 250, 125);
+        triangle(0, -100, 325, 195, 0, 425);
+    }
+    noStroke();
+    fill(colors.yellow);
+    triangle(0, -100, 325, 195, 0, 425);
+    triangle(0, -70, 300, 0, 250, 126);
+    for (var i = 1; i < 16; i++) {
+        //strokeCap(SQUARE);
+        stroke(colors.black, 25);
+        strokeWeight(4 * i);
+        line(750, -10, 250, 425);
+        stroke(194, 0, 0, 50);
+        strokeWeight(50);
+        stroke(120, 0, 0);
+        line(750, -10, 250, 425);
+        strokeWeight(1.1 * i);
+        stroke(colors.black, 50);
+        line(750, -10, 250, 425);
+        strokeWeight(10);
+        stroke(colors.yellow);
+        line(750, -10, 250, 425);
+        stroke(colors.black, 1.5);
+        strokeWeight(0.3 * i);
+        line(90, -3, 330, 195);
+    }
 });
 var navigationBack = new Icon("Nav. Back", function() {
     noStroke();
@@ -1536,162 +1547,195 @@ var welcome = new App("Welcome", function() {
     }
 });
 // }
-// App Drawer app {
-var appDrawer = new App("App Drawer", function() {
-    this.transition = 0;
-    this.transparency = 150;
-    this.blur = 5;
-    this.shown = false;
-    this.show = function() {
-        appDrawer.shown = true;
-    };
-    this.hide = function() {
-        appDrawer.shown = false;
-    };
-    this.elements = [];
-    
-    // For demo purposes
-    for(var i = 0; i < 4; i++) {
-        this.elements.push([]);
-        for(var j = 0; j < 5; j++) {
-            this.elements[i].push(new FlatButton({
-                shape: ellipse,
-                x: 100 + (445 / 5) * j,
-                y: 100 + (350 / 5) * i,
-                image: placeholderIcon
-            }));
-        }
-    }
-}, function() {
-    if(this.shown) {
-        // filter(BLUR, map(this.transition, 0, 1, 0, this.blur));
-        // translate(map(this.transition, 0, 1, 0, this.blur), map(this.transition, 0, 1, 0, this.blur));
-        noStroke();
-        fill(0, map(this.transition, 0, 1, 0, this.transparency));
-        rect(0, 0, width, height);
-        for(var i = 0; i < this.elements.length; i++) {
-            for(var j = 0; j < this.elements[i].length; j++) {
-                this.elements[i][j].draw();
-            }
-        }
-        if(Mouse.pressed) {
-            for(var i = 0; i < this.elements.length; i++) {
-                for(var j = 0; j < this.elements[i].length; j++) {
-                    this.elements[i][j].onmousepress();
-                }
-            }
-        }
-        if(Mouse.released) {
-            if(this.transition > 0.99) {
-                appDrawer.hide();
-            }
-            for(var i = 0; i < this.elements.length; i++) {
-                for(var j = 0; j < this.elements[i].length; j++) {
-                    this.elements[i][j].onmouserelease();
-                }
-            }
-        }
-        this.transition += (1 - this.transition) * 0.5;
-    } else if(this.transition > 0.05) {
-        this.transition += (-this.transition) * 0.25;
-        // translate(map(this.transition, 0, 1, 0, this.blur), map(this.transition, 0, 1, 0, this.blur));
-        // filter(BLUR, map(this.transition, 0, 1, 0, this.blur));
-        noStroke();
-        fill(0, map(this.transition, 0, 1, 0, this.transparency));
-        rect(0, 0, width, height);
-    }
-});
-// }
 // Taskbar app {
 var taskbar = new App("Taskbar", function() {
-	this.w = 400;
-	this.minH = 60;
-	this.maxH = 90;
-	this.h = this.minH;
-	this.margin = 10;
-	this.padding = 5;
-    this.x = 100;
-    this.maxY = height - (this.h + this.margin);
-    this.minY = this.maxY - (this.maxH - this.minH);
-    this.y = this.maxY;
+    var normalW = 400;
+    var normalH = 60;
+    var hoverH = 80;
+    var expandW = 500;
+    var expandH = 300;
+    this.margin = 10;
+    this.padding = 5;
+    this.w = normalW;
+    this.h = normalH;
+    var normalX = width / 2 - this.w / 2;
+    var normalY = height - this.h - this.margin;
+    this.x = normalX;
+    this.y = normalY;
+    var hoverY = normalY - (hoverH - normalH);
     this.elements = [];
     // For demo purposes
-	for(var i = 0; i < 7; i++) {
-	    this.elements.push(new FlatButton({
-	        shape: ellipse,
-	        x: (this.x + 27.5) + 50 * i,
-	        y: height - (taskbar.h + 2.5),
-	        r: 22.5,
-	        image: placeholderIcon
-	    }));
-	}
-	var backButton = new FlatButton({
-	    x: this.x + this.padding,
-	    y: this.y + this.padding,
-	    w: 20,
-	    h: 20,
-	    image: navigationBack,
-	    padding: 2
-	});
-	var homeButton = new FlatButton({
-	    x: this.x + this.padding + 20,
-	    y: this.y + this.padding,
-	    w: 20,
-	    h: 20,
-	    image: navigationHomeIcon,
-	    padding: 2
-	});
-	var expandButton = new FlatButton({
-	    x: this.x + this.w / 2 - 16,
-	    y: this.y + this.padding,
-	    w: 32,
-	    h: 20,
-	    image: dockExpandIcon,
-	    padding: 2,
-	    action: function() {
-            appDrawer.show();
-	    }
-	});
+    for(var i = 0; i < 7; i++) {
+        this.elements.push(new FlatButton({
+            shape: ellipse,
+            x: (this.x + 27.5) + 50 * i,
+            y: height - (taskbar.h + 2.5),
+            r: 22.5,
+            image: placeholderIcon
+        }));
+    }
+    var backButton = new FlatButton({
+        x: this.x + this.padding,
+        y: this.y + this.padding,
+        w: 20,
+        h: 20,
+        image: navigationBack,
+        padding: 2
+    });
+    var homeButton = new FlatButton({
+        x: this.x + this.padding + 20,
+        y: this.y + this.padding,
+        w: 20,
+        h: 20,
+        image: navigationHomeIcon,
+        padding: 2
+    });
+    var expandButton = new FlatButton({
+        x: this.x + this.w / 2 - 16,
+        y: this.y + this.padding,
+        w: 32,
+        h: 20,
+        image: dockExpandIcon,
+        padding: 2,
+        action: function() {
+            taskbar.onexpand();
+        }
+    });
     this.navigationElements = [backButton, homeButton, expandButton];
     // for(var i in this.navigationElements) {
     //     this.navigationElements[i].x = this.x + this.padding + i * 17;   
     //     this.navigationElements[i].init();
     // }
-	this.mouseOver = function() {
-        return (mouseX > this.x && mouseY > this.y && mouseX < this.x + this.w && mouseY < this.y + this.h);
-	};
-}, function() {
-    fill(colors.darkgrey);
-    if(this.mouseOver()) {
-        this.h += (this.maxH - this.h) * 0.2;
-        this.y += (this.minY - this.y) * 0.2;
-        for(var i = 0; i < this.navigationElements.length; i++) {
-            this.navigationElements[i].y = this.y + this.padding;
-            this.navigationElements[i].draw();
+    this.appDrawerElements = [];
+    for(var i = 1; i <= 2; i++) {
+        for(var j = 0; j < 7; j++) {
+            this.appDrawerElements.push(new FlatButton({
+                shape: ellipse,
+                x: (expandW - normalW - 10) + 60 * j,
+                y: 90 + 80 * i,
+                r: 22.5,
+                image: placeholderIcon
+            }));
         }
+    }
+    this.mouseOver = function() {
+        return (mouseX > this.x && mouseY > this.y && mouseX < this.x + this.w && mouseY < this.y + this.h);
+    };
+    this.animations = [];
+    this.hovered = false;
+    this.onmouseover = function() {
+		this.hovered = true;
+        var transition = 0;
+        this.animations.push(function() {
+            transition += 0.1;
+            transition = constrain(transition, 0, 1);
+            this.h = lerp(normalH, hoverH, transition);
+            this.y = lerp(normalY, hoverY, transition);
+            return transition >= 1;
+        });
+    };
+    this.onmouseout = function() {
+		this.hovered = false;
+        var transition = 0;
+        this.animations.push(function() {
+            transition += 0.1;
+            transition = constrain(transition, 0, 1);
+            this.h = lerp(hoverH, normalH, transition);
+            this.y = lerp(hoverY, normalY, transition);
+            return transition >= 1;
+        });
+    };
+    this.expanded = false;
+    this.onexpand = function() {
+        this.expanded = true;
+        var transition = 0;
+        this.animations.push(function() {
+            transition += 0.1;
+            transition = constrain(transition, 0, 1);
+            this.x = lerp(expandW - normalW, (expandW - normalW) / 2, transition);
+            this.w = lerp(normalW, expandW, transition);
+            this.y = lerp(hoverY, 50, transition);
+            this.h = lerp(hoverH, expandH, transition);
+            for(var i = 0; i < this.elements.length; i++) {
+                this.elements[i].setX((this.x + 40) + 60 * i);
+                this.elements[i].setY(this.y + 40);
+            }
+            return transition >= 1;
+        });
+    };
+    this.onshrink = function() {
+        this.expanded = false;
+		this.hovered = false;
+        var transition = 0;
+        this.animations.push(function() {
+            transition += 0.1;
+            transition = constrain(transition, 0, 1);
+            this.x = lerp((expandW - normalW) / 2, expandW - normalW, transition);
+            this.w = lerp(expandW, normalW, transition);
+            this.y = lerp(50, normalY, transition);
+            this.h = lerp(expandH, normalH, transition);
+            for(var i = 0; i < this.elements.length; i++) {
+                this.elements[i].setX((this.x + 27.5) + 50 * i);
+                this.elements[i].setY(height - (this.h + 2.5));
+            }
+            return transition >= 1;
+        });
+    };
+}, function() {
+    for(var i = this.animations.length; i--;) {
+        if (this.animations[i].call(this)){
+            // Remove that animation, stopping it
+            this.animations.splice(i, 1);
+        }
+    }
+    if (!this.expanded) {
+        if (this.mouseOver() && !this.hovered) {
+            this.onmouseover();
+        } else if (!this.mouseOver() && this.hovered) {
+            this.onmouseout();
+        }
+        if (this.hovered) {
+            for(var i = 0; i < this.navigationElements.length; i++) {
+                this.navigationElements[i].y = this.y + this.padding;
+                this.navigationElements[i].draw();
+            }
+            if(Mouse.pressed) {
+                this.navigationElements.forEach(function(element) {
+                    element.onmousepress();
+                });
+            }
+            if(Mouse.released) {
+                this.navigationElements.forEach(function(element) {
+                    element.onmouserelease();
+                });
+            }
+            fill(colors.darkgrey);
+            textAlign(RIGHT, CENTER);
+            textFont(system.font, 12);
+            text(system.time.formatted, this.x + this.w - this.padding * 2, this.y + 30 / 2);
+        }
+    } else {
+        this.appDrawerElements.forEach(function(element) {
+            element.draw();
+        });
         if(Mouse.pressed) {
-            this.navigationElements.forEach(function(element) {
-                element.onmousepress();
-            });
+        this.appDrawerElements.forEach(function(element) {
+            element.onmousepress();
+        });
         }
         if(Mouse.released) {
-            this.navigationElements.forEach(function(element) {
+            this.appDrawerElements.forEach(function(element) {
                 element.onmouserelease();
             });
         }
-        textAlign(RIGHT, CENTER);
-        textFont(system.font, 12);
-        text(system.time.formatted, this.x + this.w - this.padding * 2, this.y + (this.maxY - this.minY) / 2);
-    } else {
-        this.h += (this.minH - this.h) * 0.2;
-        this.y += (this.maxY - this.y) * 0.2;
+        if (Mouse.released) {
+            this.onshrink();
+        }
     }
-    this.h = constrain(this.h, this.minH, this.maxH);
-    this.y = constrain(this.y, this.minY, this.maxY);
-	noStroke();
-	blur(this.x, this.maxY, this.w, this.minH, 25);
-	fill(colors.white, 125);
-	rect(this.x, this.y, this.w, this.h, 10);
+    noStroke();
+    // blur(this.x, this.maxY, this.w, this.minH, 25);
+    fill(colors.white, 125);
+    rect(this.x, this.y, this.w, this.h, 10);
     this.elements.forEach(function(element) {
         element.draw();
     });
@@ -1705,7 +1749,6 @@ var taskbar = new App("Taskbar", function() {
             element.onmouserelease();
         });
     }
-    appDrawer.draw();
 });
 // }
 // Desktop app {
@@ -1716,7 +1759,7 @@ var desktop = new App("Desktop", function() {
     this.background.draw();
 });
 // }
-system.apps = [welcome, appDrawer, taskbar, desktop];
+system.apps = [welcome, taskbar, desktop];
 // }
 // Boot {
 var loading = {
