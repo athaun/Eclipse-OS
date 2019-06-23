@@ -9,7 +9,7 @@
  * Code made available under the MIT license
  *
  **/
- 
+
 // Speeds things up for easier testing
 var developerMode = true;
 
@@ -1663,7 +1663,7 @@ var taskbar = new App("Taskbar", function() {
     this.animations = [];
     this.hovered = false;
     this.onmouseover = function() {
-		this.hovered = true;
+        this.hovered = true;
         var transition = 0;
         this.animations.push(function() {
             transition += 0.1;
@@ -1674,7 +1674,7 @@ var taskbar = new App("Taskbar", function() {
         });
     };
     this.onmouseout = function() {
-		this.hovered = false;
+        this.hovered = false;
         var transition = 0;
         this.animations.push(function() {
             transition += 0.1;
@@ -1704,7 +1704,7 @@ var taskbar = new App("Taskbar", function() {
     };
     this.onshrink = function() {
         this.expanded = false;
-		this.hovered = false;
+        this.hovered = false;
         var transition = 0;
         this.animations.push(function() {
             transition += 0.1;
