@@ -1,7 +1,7 @@
 /**
  *
  * Eclipse Operating System
- * version 4.2.4
+ * version 4.2.3
  *
  * Copyright 2019
  * Eclipse Development Team
@@ -9,23 +9,26 @@
  * Code made available under the MIT license
  *
  **/
+ 
 
+
+// Setup {
 // Speeds things up for easier testing
-var developerMode = true;
-
-// Program {
+var developerMode = false;
+var clicked = false;
 // Since not everything is supported on all canvas sizes we have a canvas size check
 if(width !== 600 && height !== 500) {
     println("Eclipse OS might not display correctly with your canvas size. Consider switching to a 600 by 500 canvas for optimal results.");
 }
-// Used for some browsers to force them to render smoothly, without this, it is very pixelated
+// Used for some browsers (like firefox) to force them to render smoothly, without this, it is very pixelated
 smooth();
-// To keep frame rate uniformed, i.e. animation won't be too fast
+// To keep frame rate uniform, i.e. animation won't be too fast
 frameRate(60);
+
 // }
 // System {
 /*
-Colors object to be used whenever using background, fill or stroke. This is to make it easier to change the colors without hacing to go through the code and change every instance of the particular color.
+Colors object to be used whenever using background, fill or stroke. This is to make it easier to change the colors without having to go through the code and change every instance of the particular color.
 
 Usage:
 
@@ -68,11 +71,9 @@ var system = {
         */
         formatted: null,
         update: function() {
-            // Update the hour, minute and second properties
             this.hour = hour();
             this.minute = minute();
             this.second = second();
-            // Add padding for minutes and hours
             if (this.minute < 10) {
                 if (this.hour > 12) {
                     this.timeStamp = "PM";
@@ -103,60 +104,28 @@ var system = {
     // Stores system events such as scene changes, applications ran, etc.
     events: [],
 };
-
-// }
-// Event Handling {
-/* 
-Mouse events object. `released` property must be set to false every frame - at the end of the draw function - so it's only true one frame after the mouse is released.
-
-Usage:
-    
-    if (Mouse.pressed) {
-        println("Mouse is pressed!");
-    }
-
-*/
 var Mouse = {
     pressed: false,
     released: false,
     dragged: false
 };
-mousePressed = function() {
-    Mouse.pressed = true;
-};
-mouseReleased = function() {
-    Mouse.pressed = false;
-    Mouse.dragged = false;
-    Mouse.released = true;
-};
-mouseDragged = function() {
-    Mouse.dragged = true;  
-};
-mouseOut = function() {
-    Mouse.pressed = false;
-    Mouse.dragged = false;
-};
-/*
-Key events object. `pressed` property must be set to false every frame - at the end of the draw function - so it's only true one frame after the key is pressed.
-
-Usage:
-    
-    if (Key.pressed) {
-        println("Keycode " + Key.code + " is pressed!");
-    }
-
-*/
 var Key = {
     pressed: false,
     code: null
 };
-keyPressed = function() {
-    Key.pressed = true;
-    Key.code = keyCode;
+var ms = millis();
+var FPS = 0;
+var updateTime = function() {
+    if (frameCount % 60 === 0) {
+        FPS = floor((60 / (millis() - ms)) * 1000);
+        ms = millis();
+    }
 };
+
 // }
 // GUI {
-// See https://github.com/bhavjitChauhan/Simple-Elements/releases/tag/v2.0
+// Library developed by Aliquis
+// See https://github.com/athaun/Eclipse-OS/wiki/GUI-Elements
 
 // Config {
 var config = {
@@ -1428,35 +1397,35 @@ var materialBackground1 = new Icon("Material Background 1", function() {
 });
 var materialBackground2 = new Icon("Material Background 2", function() {
     background(colors.theme);
-    for (var i = 1; i < 16; i++) {
-        strokeWeight(1.1 * i);
-        stroke(colors.black, 7.5);
-        triangle(0, -70, 300, 0, 250, 125);
-        triangle(0, -100, 325, 195, 0, 425);
-    }
-    noStroke();
-    fill(colors.yellow);
-    triangle(0, -100, 325, 195, 0, 425);
-    triangle(0, -70, 300, 0, 250, 126);
-    for (var i = 1; i < 16; i++) {
-        //strokeCap(SQUARE);
-        stroke(colors.black, 25);
-        strokeWeight(4 * i);
-        line(750, -10, 250, 425);
-        stroke(194, 0, 0, 50);
-        strokeWeight(50);
-        stroke(120, 0, 0);
-        line(750, -10, 250, 425);
-        strokeWeight(1.1 * i);
-        stroke(colors.black, 50);
-        line(750, -10, 250, 425);
-        strokeWeight(10);
-        stroke(colors.yellow);
-        line(750, -10, 250, 425);
-        stroke(colors.black, 1.5);
-        strokeWeight(0.3 * i);
-        line(90, -3, 330, 195);
-    }
+	for (var i = 1; i < 16; i++) {
+		strokeWeight(1.1 * i);
+		stroke(colors.black, 7.5);
+		triangle(0, -70, 300, 0, 250, 125);
+		triangle(0, -100, 325, 195, 0, 425);
+	}
+	noStroke();
+	fill(colors.yellow);
+	triangle(0, -100, 325, 195, 0, 425);
+	triangle(0, -70, 300, 0, 250, 126);
+	for (var i = 1; i < 16; i++) {
+		//strokeCap(SQUARE);
+		stroke(colors.black, 25);
+		strokeWeight(4 * i);
+		line(750, -10, 250, 425);
+		stroke(194, 0, 0, 50);
+		strokeWeight(50);
+		stroke(120, 0, 0);
+		line(750, -10, 250, 425);
+		strokeWeight(1.1 * i);
+		stroke(colors.black, 50);
+		line(750, -10, 250, 425);
+		strokeWeight(10);
+		stroke(colors.yellow);
+		line(750, -10, 250, 425);
+		stroke(colors.black, 1.5);
+		strokeWeight(0.3 * i);
+		line(90, -3, 330, 195);
+	}
 });
 var navigationBack = new Icon("Nav. Back", function() {
     noStroke();
@@ -1504,77 +1473,6 @@ var App = function(name, load, draw) {
 };
 // }
 // Apps {
-// Welcome app {
-var welcome = new App("Welcome", function() {
-    // Will be set to true is username is blank
-    this.usernameError = false;
-    this.usernameBox = new Textbox({
-        placeholder: "Username",
-        // Center on canvas
-        x: (width / 2) - config.textbox.w / 2,
-        y: 220,
-        text: system.username
-    });
-    this.passwordBox = new Textbox({
-        placeholder: "Password",
-        // Center on canvas
-        x: (width / 2) - config.textbox.w / 2,
-        y: 260,
-        obfuscate: true
-    });
-    this.submitButton = new SymbolButton({
-        symbol: symbols.checkmark,
-        // Center on canvas
-        x: (width / 2) - config.symbolbutton.r / 2,
-        y: 400,
-        action: function() {
-            // Confirm that username isn't all whitespace
-            if(/\S/.test(welcome.usernameBox.text)) {
-                system.username = welcome.usernameBox.text;
-                system.password = welcome.passwordBox.text;
-                system.scene = "desktop";
-            } else {
-                welcome.usernameError = true;
-            }
-        }
-    });
-    this.elements = [this.usernameBox, this.passwordBox, this.submitButton];
-}, function() {
-    // Skip login process if development environment
-    if(developerMode) {
-        system.username = "Developer";
-        system.scene = "desktop";
-    }
-    this.elements.forEach(function(element) {
-        element.draw();
-    });
-    fill(colors.black);
-    textAlign(CENTER);
-    textSize(20);
-    text("Welcome to Eclipse OS", width / 2, 150);
-    if(this.usernameError) {
-        fill(colors.red);
-        textSize(15);
-        text("Invalid username", width / 2, 350);
-    }
-    // Event handling for textbox
-    if(Mouse.pressed) {
-        this.elements.forEach(function(element) {
-            element.onmousepress();
-        });
-    }
-    if(Mouse.released) {
-        this.elements.forEach(function(element) {
-            element.onmouserelease();
-        });
-    }
-    if(Key.pressed) {
-        this.elements.forEach(function(element) {
-            element.onkeypress();
-        });
-    }
-});
-// }
 // Taskbar app {
 var taskbar = new App("Taskbar", function() {
     // Width and height of taskbar normaly
@@ -1663,7 +1561,7 @@ var taskbar = new App("Taskbar", function() {
     this.animations = [];
     this.hovered = false;
     this.onmouseover = function() {
-        this.hovered = true;
+		this.hovered = true;
         var transition = 0;
         this.animations.push(function() {
             transition += 0.1;
@@ -1674,7 +1572,7 @@ var taskbar = new App("Taskbar", function() {
         });
     };
     this.onmouseout = function() {
-        this.hovered = false;
+		this.hovered = false;
         var transition = 0;
         this.animations.push(function() {
             transition += 0.1;
@@ -1704,7 +1602,7 @@ var taskbar = new App("Taskbar", function() {
     };
     this.onshrink = function() {
         this.expanded = false;
-        this.hovered = false;
+		this.hovered = false;
         var transition = 0;
         this.animations.push(function() {
             transition += 0.1;
@@ -1791,17 +1689,419 @@ var taskbar = new App("Taskbar", function() {
         });
     }
 });
+system.apps = [taskbar];
 // }
-// Desktop app {
-var desktop = new App("Desktop", function() {
-    this.background = materialBackground1;
-}, function() {
-    background(colors.black);
-    this.background.draw();
-});
 // }
-system.apps = [welcome, taskbar, desktop];
+// Window Manager {
+    // scrollbar{
+        var scrollBoundsWidth = 1,
+            scrollBoundsHeight = 1,
+            scrollBoundsX = 0,
+            scrollBoundsY = 0;
+        var canScroll = true;
+        var isScrolling = false;
+        if (scrollBoundsWidth < 0.5) {
+            scrollBoundsWidth = 0.5;
+        }
+        if (scrollBoundsHeight < 0.5) {
+            scrollBoundsHeight = 0.5;
+        }
+        var Scrollbar = function(paramX, paramY, windowWidth, windowHeight, textLength, isListening) {
+            this.grip_size = 4;
+            this.x = paramX;
+            this.y = paramY;
+            this.windowWidth = windowWidth;
+            this.windowHeight = windowHeight;
+            this.textLength = textLength;
+            this.position = 0;
+            this.gripHeight = null;
+            this.scrollSpeed = 10;
+            this.isListening = isListening; // is the parent window active?
+            
+            Scrollbar.prototype.draw = function() {
+                
+                this.gripHeight = (this.windowHeight / this.textLength) * this.grip_size;
+                
+                pushMatrix();
+                translate(this.x, this.y);
+                rectMode(CORNER);
+                fill(204, 204, 204);
+                rect(this.windowWidth - 15, 0, 15, this.windowHeight);
+                fill(158, 158, 158);
+                rect(this.windowWidth - 11, this.position, 7, this.gripHeight, 10);
+            
+                popMatrix();
+                
+                if(mouseX > ((this.windowWidth + this.x) - 15) && mouseX < (this.windowWidth + this.x) && canScroll && this.isListening) {
+                    cursor("pointer");
+                    if(mouseIsPressed) {
+                        if( (mouseY - this.y) < this.position - 3 ||
+                            (mouseY - this.y) > this.position + this.gripHeight + 3) {
+                            isScrolling = true;
+                            if((mouseY - this.y) < this.position) {
+                                this.position -= this.scrollSpeed;
+                            } else {
+                                this.position += this.scrollSpeed;
+                            }   
+                        }
+                    } else {
+                        isScrolling = false;
+                    }
+                }
+            
+            };
+            
+            Scrollbar.prototype.currentPosition = function() {
+                return this.position;
+            };
+            Scrollbar.prototype.currentYposition = function() {
+                return this.y;
+            };
+            
+        };
+        
+        var scrollbarOne = new Scrollbar(scrollBoundsX, scrollBoundsY, scrollBoundsWidth * 400, scrollBoundsHeight * 400, 31);
+        var scrollbarAbout = new Scrollbar(scrollBoundsX, scrollBoundsY, scrollBoundsWidth * 400, scrollBoundsHeight * 400, 31);
+        // possibly pass scollbounds parameters in as one object, or bypass adding as parameter alltogethor
+    // }
+    var w = [];
+    var autoresize = false;
+    var createWindow = function(type, x, y, wi, h, windowName) {
+        var D = {};
+        if (type === 0) {
+            D = {
+                x: 0,
+                y: 0
+            };
+        }
+        w.push({
+            lastclick: w.length,
+            type: type,
+            img: 0,
+            x: x,
+            y: y,
+            w: wi,
+            h: h,
+            minw: 150,
+            minh: 150,
+            d: D,
+            id: w.length,
+            windowName: windowName,
+            open: true,
+            active: false
+        });
+    };
+    var moving = -1;
+    var resizing = -1;
+    var inside = -1;
+    var latestimg = 0;
+    var toggleMaximize = false;// has a specific windows maximize button been clicked?
+    var toggleMaximizeDown = false;
+    var maximizeId = null;
+    var maximized = null;
+    var minimize = false;
+    var minimizeId = null;
+    var minimizedWindows = [];
+    var windowID;// each windows specific ID (can only be used inside of the for() that creates and updates each window this is a immutable value, do not change)
+    
+    var Window = function(x, y, w, h, t, d, windowdata) {
+        var D = d;
+        if (t === 0) {
+        scrollbarAbout.x = x;
+        scrollbarAbout.y = y;
+        scrollbarAbout.windowWidth = w;
+        scrollbarAbout.windowHeight = h;
+        background(255, 255, 255);
+        pushMatrix();
+        translate(0, 0 - scrollbarAbout.currentPosition());
+            eclipseLogo.draw(x + 10, y + 10);
+            fill(40);
+            textSize(20);
+            text("Eclipse OS", x + 41, y + 26);
+            textSize(13);
+            text("Release " + system.version + "\n\nCopyright 2018-2019, MIT License\nAll rights reserved. Credit all code taken from this project to the Eclipse OS develompent team. ", x + 10, y + 53, windowdata.w - 20, windowdata.h - 20);
+            // text("WindowData " + windowdata.id + "\nResolution " + width + " by " + height + "\nCurrent FPS: " + FPS, x + 10, y + 105);
+            
+        popMatrix();
+        // scrollbarAbout.draw();   
+            
+            
+        }
+        if (t === 1) {
+            
+            scrollbarOne.x = x;
+            scrollbarOne.y = y;
+            scrollbarOne.windowWidth = w;
+            scrollbarOne.windowHeight = h;
+    
+            background(31, 31, 31);
+            noStroke();
+    
+            pushMatrix();
+            translate(0, 0 - scrollbarOne.currentPosition());
+            // scale(l, 1);
+            noStroke();
+            textSize(14);
+            fill(255, 213, 0);
+            text("User@Eclipse-OS #", x + 5, y + 18);
+            popMatrix();
+            scrollbarOne.draw();
+            scrollbarOne.isListening = windowdata.active;
+            
+            // println("mouseY: " + (mouseY - scrollbar.currentYposition()) + " || pos: " + scrollbar.currentPosition());
+        }
+        if (t === 3) {
+        // EXAMPLE APP
+            // scrollbarName.x = x;
+            // scrollbarName.y = y;
+            // scrollbarName.windowWidth = w;
+            // scrollbarName.windowHeight = h;
+            
+            pushMatrix();
+            background(255, 255, 255);
+            eclipseLogo.draw(x + 10, y + 10);
+            
+            fill(40);
+            textSize(20);
+            text("Welcome to Eclipse OS!", x + 45, y + 33);
+            textSize(13);
+            text("Eclipse OS began as a concept, basically just a graphic. At 286 lines, it had almost no interactive features. Slowly, both the codebase and our amazing development team grew. We released three major versions, our lines of code numbered in the thousands. At that point, we realized\n. . .\nit was time for change. \nINTRODUCING! Eclipse OS Nighthawk!\n• A brand new codebase! Written with efficiency in mind.\n• An all new window manager!\n• A Whole new suite of apps!\n• Vocal is back, and better than ever!", x + 10, y + 53, windowdata.w - 20, windowdata.h - 20);
+                
+            popMatrix();
+            // scrollbarName.draw();   
+        }
+        latestimg = get(x, y, w, h);
+    };
+    var resortWindows = function() {
+        w.sort(function(a, b) {
+            return a.lastclick - b.lastclick;
+        });
+    };
+    
+    createWindow(0, 100, 100, 250, 200, "about");
+    createWindow(1, 150, 150, 250, 200, "Terminal");
+    createWindow(3, 150, 100, 300, 300, "Welcome!");
+    
+    var handleWindows = function () {
+        textAlign("top", "left");
+        for (var i = 0; i < w.length; i++) {
+            var W = w[i];
+            Window(W.x, W.y, W.w, W.h, W.type, w[i].d, W);
+            W.img = latestimg;
+        }
+        // anything drawn behind the windows (ie the desktop and dock) need to be called here, 
+        materialBackground1.draw();
+        
+        textAlign("top", "left");
+        for (var i = 0; i < w.length; i++) {
+            // windowId is used only in some cases, while othertimes just 'w[i]' is used, this is because w[i] is dynamic, and changes whenever the user clicks inside the window, windowId is not.
+            var windowId = w[i].id;
+            {
+                fill(189, 47, 47);
+                image(w[i].img, w[i].x, w[i].y, w[i].w, w[i].h);//window
+                
+                fill(168, 168, 168, 150);
+                rect(w[i].x, w[i].y - 20, w[i].w, 22);//shadow
+                
+                fill(255);
+                rect(w[i].x, w[i].y - 20, w[i].w, 20, 5);//title
+                rect(w[i].x, w[i].y - 10, w[i].w, 10);//title
+                
+                fill(0);
+                textSize(12);
+                text(w[i].windowName, w[i].x + 5, w[i].y - 5);// title bar text (window's name)
+            } // draws window
+            
+            {   
+                fill(255, 0, 0);
+                if(dist(mouseX, mouseY, w[windowId].x + w[windowId].w - 12, w[windowId].y - 14) < 6) {
+                    fill(255, 100, 100);
+                    canScroll = false;// diables scroling in an attempt to keep the scrollbar from moving when the user closes the window (this is a dirty fix, and a permanent one should be applied within the scollbar class)
+                    cursor("pointer");
+                    if(clicked) {
+                        w[windowId].open = false;
+                        w[windowId].y = height + 100;
+                    }
+                } else {
+                    canScroll = true;
+                    // re-enable scrolling after mouse has moved away from button or window has closed
+                }// checks if mouse is within minimize button radius
+                
+                ellipse(w[i].x + w[i].w - 12, w[i].y - 14, 8, 8);// close button
+            } // close button
+            
+            {
+                /** 
+                    restore = toggle maximize
+                */
+                fill(148);
+                if(dist(mouseX, mouseY, w[windowId].x + w[windowId].w - 24, w[windowId].y - 14) < 6) {
+                    fill(189);
+                    cursor("pointer");
+                    if(clicked) {
+                        toggleMaximize = true;
+                        maximizeId = windowId;
+                    }
+                }// checks if mouse is within restore button radius
+                
+                ellipse(w[i].x + w[i].w - 24, w[i].y - 14, 8, 8);// maximize button
+                
+                if (toggleMaximize) {
+                    var done = [false, false, false, false];
+                    var movementSpeed = 15;
+                    w[maximizeId].x -= movementSpeed;
+                    w[maximizeId].y -= movementSpeed;
+                    w[maximizeId].w += movementSpeed + 5;
+                    w[maximizeId].h += movementSpeed + 5;
+                    
+                    if (w[maximizeId].x <= 0) {
+                        w[maximizeId].x = 0;
+                        done[0] = true;
+                    }
+                    
+                    if (w[maximizeId].y <= 20) {
+                        w[maximizeId].y = 20;
+                        done[1] = true;
+                    }
+                    
+                    if (w[maximizeId].w >= width) {
+                        w[maximizeId].w = width;
+                        done[2] = true;
+                    }
+                    
+                    if (w[maximizeId].h >= height) {
+                        w[maximizeId].h = height;
+                        done[3] = true;
+                    }
+                    
+                    if (done[0] && done[1] && done[2] && done[3]) {
+                        toggleMaximize = false;
+                        done = [false, false, false, false];
+                        maximized = maximizeId; // the currently maximized window
+                        maximizeId = -1;
+                    }
+                    
+                    if(dist(mouseX, mouseY, w[windowId].x + w[windowId].w - 23, w[windowId].y - 10) < 6) {
+                        fill(189);
+                        cursor("pointer");
+                        if(clicked) {
+                            toggleMaximizeDown = true;
+                            maximizeId = windowId;
+                            // println("restore");
+                        }
+                    }// checks if mouse is within restore button radius
+                } else {
+                    fill(148);
+                    
+                    if (toggleMaximizeDown) {
+                        var done = [false, false, false, false];
+                        var movementSpeed = 15;
+                        w[maximizeId].x += movementSpeed;
+                        w[maximizeId].y += movementSpeed;
+                        w[maximizeId].w -= movementSpeed * 2;
+                        w[maximizeId].h -= movementSpeed * 2;
+                        
+                        if (w[maximizeId].x >= width/2 - w[maximizeId].w/2) {
+                            w[maximizeId].x = width/2 - w[maximizeId].w/2;
+                            done[0] = true;
+                        }
+                        
+                        if (w[maximizeId].y >= height/2 - w[maximizeId].h/2) {
+                            w[maximizeId].y = height/2 - w[maximizeId].h/2;
+                            done[1] = true;
+                        }
+                        
+                        if (w[maximizeId].w <= w[maximizeId].minw + 100) {
+                            w[maximizeId].w = w[maximizeId].minw + 100;
+                            done[2] = true;
+                        }
+                        
+                        if (w[maximizeId].h <= w[maximizeId].minh + 50) {
+                            w[maximizeId].h = w[maximizeId].minh + 50;
+                            done[3] = true;
+                        }
+                        
+                        if (done[0] && done[1] && done[2] && done[3]) {
+                            toggleMaximizeDown = false;
+                            done = [false, false, false, false];
+                            maximizeId = -1;
+                        }
+                    } 
+                }
+            } // minimize/maximize button    
+        
+            {
+                fill(158);
+                if(dist(mouseX, mouseY, w[windowId].x + w[windowId].w - 36, w[windowId].y - 14) < 6) {
+                    fill(189);
+                    cursor("pointer");
+                    if(clicked) {
+                        minimize = true;
+                        minimizeId = windowId;
+                    }
+                } // checks if mouse is within minimize button radius
+                ellipse(w[i].x + w[i].w - 36, w[i].y - 14, 8, 8);// minimize button
+                
+                if (minimize) {
+                    
+                    w[minimizeId].y += 25;
+                    if (w[minimizeId].y > height + 100) {
+                        w[minimizeId].y = height + 100;
+                        minimize = false;
+                        minimizeId = -1;
+                        minimizedWindows.push(minimizeId);
+                    }
+                }
+    
+            } // minimize 
+    
+            {
+                // When the user is over the window
+                if (mouseX > w[i].x && mouseX < w[i].x + w[i].w && mouseY > w[i].y - 20 && mouseY < w[i].y && moving !== i) {
+                    cursor("arrow");
+                    canScroll = true;
+                } else {
+                    canScroll = false;
+                }
+        
+                // When the user is moving the window, change the position by the change of x and y.
+                if (moving === i && !isScrolling) {
+                    w[i].x += mouseX - pmouseX;
+                    w[i].y += mouseY - pmouseY;
+                    resizing = -1;
+                    cursor("grab");
+                    maximized = false;// if the window is moved and maximized, this wil turn maximized off, otherwise the window will jump back to the top as soon as the mous is released
+                    toggleMaximize = false;// this is related to maximized, set to false for the same reasons
+                    canScroll = false;// disable scrolling of all windows when moving any window
+                    
+                } else {
+                    canScroll = true;// re-enable scolling after user is done moving windows 
+                }
+                if (resizing === i) {
+                    w[i].w += mouseX - pmouseX;
+                    w[i].h += mouseY - pmouseY;
+                    moving = -1;
+                    w[i].w = constrain(w[i].w, 200, width);
+                    w[i].h = constrain(w[i].h, 200, height);
+                    cursor("nwse-resize");
+                    canScroll = false; // prevents scrolling in any window while a window is moving
+                }
+                if (resizing !== i && moving !== i && !maximized && !toggleMaximize) {
+                    w[i].y = constrain(w[i].y, 20, height + 100);
+                    if (mouseX > w[i].x + w[i].w && mouseX < w[i].x + w[i].w + 10 && mouseY > w[i].y + w[i].h && mouseY < w[i].y + w[i].h + 10) {
+                        cursor("nwse-resize");
+                    }
+                }
+            } // window handler
+            
+        }
+        w[0].y = 600; // hide the about page
+        w[1].y = 600; // hide the terminal
+        taskbar.draw();
+    };
+    // usage: createWindow(windowID, x, y, width, height, "name");
 // }
+
 // Boot {
 var loading = {
     // Which asset is being loading in the `assets` array
@@ -1852,7 +2152,7 @@ var boot = function() {
     // Glow of sun after being eclipsed, not shown until animation is over
     // Starts to increase at frame 380
     var glow = constrain(map(frameCount, 380, 400, 0, 2.5), 0, 4);
-    stroke(colors.white);
+    stroke(255, 242, 0);
     noFill();
     if(animation === 360 || developerMode) {
         // No glow if frame count is not more than 380
@@ -1889,18 +2189,20 @@ var boot = function() {
 // }
 // Drawing {
 var draw = function() {
+    updateTime();
+    cursor(ARROW);
     background(colors.white);
+    textAlign(LEFT);
     try {
         switch(system.scene) {
             case "boot":
                 boot();
                 break;
             case "login":
-                welcome.draw();
+                system.scene = "desktop";
                 break;
             case "desktop":
-                desktop.draw();
-                taskbar.draw();
+                handleWindows();
                 break;
             default:
                 println("Unknown scene \"" + system.scene + "\".");
@@ -1910,11 +2212,80 @@ var draw = function() {
     }
     // Update the time in the `system` object every frame, should be at beginning of the `draw` loop
     system.time.update();
+    
+    
+    
+    /* 
+        Set the `released` value of `Mouse` to `false` so `released` is only true for one frame after Mouse is released || `key.pressed` is set to `false` for the same reason as `Mouse.released`.
+        these must be placed at the very bottom of the draw
+    */
+
+    if (!mouseIsPressed) {
+        moving = -1;
+        resizing = -1;
+    }
+    clicked = false;
+    // Update the time in the `system` object every frame, should be at beginning of the `draw` loop
+    system.time.update();
     /* 
         Set the `released` value of `Mouse` to `false` so `released` is only true for one frame after         Mouse is released || `key.pressed` is set to `false` for the same reason as `Mouse.released`.
         these must be placed at the very bottom of the draw
     */
     Mouse.released = false;
     Key.pressed = false;
+};
+// }
+// Event Handling {
+
+mousePressed = function() {
+    Mouse.pressed = true;
+    for (var i = w.length - 1; i >= 0; i--) {
+        var W = w[i];
+        if (mouseX > W.x - 5 && mouseX < W.x + W.w + 10 && mouseY > W.y - 20 && mouseY < W.y + W.h + 25) {
+            W.lastclick = millis();
+            W.active = true;
+            resortWindows();
+            return;
+        } else {
+            W.active = false;
+        }
+    }
+    scrollbarOne.mousePressed();
+    scrollbarAbout.mousePressed();
+};
+mouseReleased = function() {
+    Mouse.pressed = false;
+    Mouse.dragged = false;
+    Mouse.released = true;
+};
+mouseDragged = function() {
+    Mouse.dragged = true;
+    for (var i = w.length - 1; i >= 0; i--) {
+        var W = w[i];
+        if (resizing !== i && moving !== i) {
+            if (mouseX > W.x + W.w && mouseX < W.x + W.w + 10 && mouseY > W.y + W.h && mouseY < W.y + W.h + 10 && moving === -1 && resizing === -1) {
+                resizing = i;
+            }
+            if (mouseX > W.x - 5 && mouseX < W.x + W.w + 5 && mouseY > W.y - 20 && mouseY < W.y && moving === -1 && resizing === -1) {
+                moving = i;
+            }
+        }
+    }
+    scrollbarAbout.mouseScrolled();
+    scrollbarOne.mouseScrolled();// must be applied to each scollbar individually, maybe a possible feature update later to update all at once??
+};
+mouseOut = function() {
+    Mouse.pressed = false;
+    Mouse.dragged = false;
+};
+
+
+keyPressed = function() {
+    Key.pressed = true;
+    Key.code = keyCode;
+};
+
+mouseClicked = function() {
+    clicked = true;
 };
 // }
